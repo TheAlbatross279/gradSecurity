@@ -7,6 +7,7 @@
 
 void genRandNum(mpz_t rop);
 int isPrime(mpz_t rop);
+int getRandomPrime(mpz_t rop);
 void printMPZ(mpz_t rop);
 void readMPZ(mpz_t rop, FILE *filestream);
 void writeMPZ(mpz_t rop, FILE *filestream);

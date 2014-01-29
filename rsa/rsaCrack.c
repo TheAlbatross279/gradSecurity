@@ -5,34 +5,15 @@
 
 
 #include <gmp.h>
-
+#include "rsa.h"
 #include "gmpFuncts.h"
 
 int main(int argc, char**argv) {
-  printf("Generating random number\n");
+  printf("Generating random number...\n");
   mpz_t rop;
   mpz_init(rop);
   genRandNum(rop);
- 
-  int isPrimeInt = isPrime(rop);
-  mpz_t op;
-  mpz_init(op);
-  mpz_nextprime (op, rop);
-
-  if (isPrimeInt) {
-    printf("The number is prime.\n");
-  } else {
-    printf("The number is NOT prime.\n");
-  }
-
-  isPrimeInt = isPrime(op);
-  if (isPrimeInt) {
-    printf("The number is prime.\n");
-  } else {
-    printf("The number is NOT prime.\n");
-  }
-
-  
+  printf("done.\n");
   printf("Checking RSA keys...\n");
 
   mpz_t n1, n2, n3, n4, n5, n6;
@@ -43,7 +24,7 @@ int main(int argc, char**argv) {
   mpz_init(n5);
   mpz_init(n6);
 
-  printf("Opening files...\n");
+
   FILE *n1_file = fopen("n1.txt", "r");
   FILE *n2_file = fopen("n2.txt", "r");
   FILE *n3_file = fopen("n3.txt", "r");
@@ -51,7 +32,6 @@ int main(int argc, char**argv) {
   FILE *n5_file = fopen("n5.txt", "r");
   FILE *n6_file = fopen("n6.txt", "r");
 
-  printf("Reading in files...\n");
   readMPZ(n1, n1_file);
   readMPZ(n2, n2_file);
   readMPZ(n3, n3_file);
@@ -76,19 +56,16 @@ int main(int argc, char**argv) {
   int matches[2] = {-1, -1};
 
   for (i=0; i < 6; i++) {
-    for (j=0; j < 6; j++) {
-      if (i != j) {
+    for (j=i+1; j < 6; j++) {
         mpz_gcd (gcd, arr[i], arr[j]);
         if (mpz_cmp_ui(gcd, 1) != 0) {
-          printf("gcd is prme: %d\n", isPrime(gcd));
-          printf("%d, %d\n", i, j);
-          printMPZ(gcd);
           matches[0] = i;
           matches[1] = j;
           break;
         }
-      }
-
+    }
+    if (matches[1] != -1) {
+      break;
     }
   }
 
@@ -102,6 +79,46 @@ int main(int argc, char**argv) {
   fclose(n4_file);
   fclose(n5_file);
   fclose(n6_file);
+  printf("done.\n");
 
+  printf("Testing RSA decrypt...\n");
+  //read in ciphertext
+  FILE *c_file = fopen("ciphertext.txt", "r");
+  mpz_t ciphertext;
+  mpz_init(ciphertext);
+  readMPZ(ciphertext, c_file);
+  fclose(c_file);
+  
+
+  mpz_t privateKey, publicKey, plaintext;
+  mpz_init(privateKey);
+  mpz_init(publicKey);
+  mpz_init(plaintext);
+  
+  mpz_set_ui(publicKey, E);
+
+
+  printf("Decrypting...\n");
+  //get n
+  mpz_t n;
+  mpz_init(n);
+  
+  mpz_t p, q;
+  mpz_init(p);
+  mpz_init(q);
+
+  mpz_set(p, gcd);
+  //product divided by prime
+  //n2/p = q
+  mpz_tdiv_q_ui(q, n2, p);
+  //q is now other prime
+  
+  //get keys
+  getKeysWithPrimes(p, q, publicKey, privateKey);
+  totient(p, q, n);
+  decrypt(plaintext, privateKey, n, ciphertext);
+
+  printPlaintext(plaintext);
+  
   return 0;
 }

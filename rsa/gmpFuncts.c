@@ -7,7 +7,7 @@
 #include "gmpFuncts.h"
 #include <time.h>
 #define BIT_COUNT 512
-#define REPS 25
+#define REPS 50
 #define BASE_10 10
 
 /* Generate 512 bit pseudo-random number */
@@ -26,6 +26,14 @@ void genRandNum(mpz_t rop) {
 /* Returns 1 or 0 if the number is probably prime */
 int isPrime(mpz_t rop) {
   return mpz_probab_prime_p (rop, REPS);
+}
+
+/* Generates a random number until a prime is found */
+int getRandomPrime(mpz_t rop) {
+  do {
+    genRandNum(rop);
+  } while(!isPrime(rop));
+  
 }
 
 /* Just prints the number to stdout */

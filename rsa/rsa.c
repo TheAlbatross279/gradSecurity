@@ -3,7 +3,7 @@
  * 1/25/14
  */
 
-#define E 65537
+
 #include <gmp.h>
 #include "gmpFuncts.h"
 #include "rsa.h"
@@ -23,10 +23,15 @@ void genreateKeys(mpz_t privateKey, mpz_t publicKey) {
     mpz_nextprime(prime2, prime2);
   }
 
+  getKeysWithPrimes(prime1, prime2, publicKey, privateKey);
+  
+}
+
+void getKeysWithPrimes(mpz_t p, mpz_t q, mpz_t publicKey, mpz_t privateKey) {
   mpz_t n;
   mpz_init(n);
   //compute totient
-  totient(prime1, prime2, n);
+  totient(p, q, n);
   
   //compute d/private key
   mpz_t neg_one;
@@ -37,7 +42,6 @@ void genreateKeys(mpz_t privateKey, mpz_t publicKey) {
 
   //set privateKey
   modExponentMPZ(publicKey, neg_one, n, privateKey);
-  
 }
 
 void totient(mpz_t prime1, mpz_t prime2, mpz_t n) {
@@ -56,15 +60,43 @@ void totient(mpz_t prime1, mpz_t prime2, mpz_t n) {
   
 }
 
-void encrypt() {
-  
+void encrypt(mpz_t plaintext, mpz_t publicKey, mpz_t n, mpz_t ciphertext) {
+  modExponentMPZ(plaintext, publicKey, n, ciphertext); 
 }
 
-void decrypt() {
-
-
+void decrypt(mpz_t plaintext, mpz_t privateKey, mpz_t n, mpz_t ciphertext) {
+  modExponentMPZ(ciphertext, privateKey, n, plaintext);
 }
 
 void generateN(mpz_t prime1, mpz_t prime2, mpz_t n) {
   mpz_mul(n, prime1, prime2);
+}
+
+void printPlaintext(mpz_t plaintext) {
+/*  FILE *out = fopen("plaintext.txt", "w");
+    mpz_out_str (out, 16, plaintext);*/
+  //gmp_printf("Here: %s\n", plaintext);
+
+//  fclose(out);
+
+//  printf("%s\n", (char *)plaintext);
+
+  FILE *out = fopen("plaintext.txt", "r");
+  int c, i=0;
+  char buffer[3];
+  buffer[2] = '\0';
+  
+
+  while ((c = getc(out)) != EOF) {
+
+    if ((i%2) == 0 && i != 0 ) {
+      fprintf(stdout, "%x\n", (char)atoi(buffer));
+    }
+
+    buffer[i%2] = c;
+    i++;
+  }
+  printf("\n");
+
+
 }
