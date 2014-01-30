@@ -36,13 +36,18 @@ void getKeysWithPrimes(mpz_t p, mpz_t q, mpz_t publicKey, mpz_t privateKey) {
   //compute d/private key
   mpz_t neg_one;
   mpz_init(neg_one);
-  mpz_set_ui(neg_one, -1);
+  mpz_set_si(neg_one, -1);
 
   mpz_set_ui(publicKey, E);
 
   //set privateKey
   modExponentMPZ(publicKey, neg_one, n, privateKey);
 }
+
+void computeN(mpz_t p, mpz_t q, mpz_t n) {
+     mpz_mul(n, p, q);
+}
+
 
 void totient(mpz_t prime1, mpz_t prime2, mpz_t n) {
   //totient(n) = totient(p)*totient(q) = (p-1)(q-1)
@@ -65,7 +70,7 @@ void encrypt(mpz_t plaintext, mpz_t publicKey, mpz_t n, mpz_t ciphertext) {
 }
 
 void decrypt(mpz_t plaintext, mpz_t privateKey, mpz_t n, mpz_t ciphertext) {
-  modExponentMPZ(ciphertext, privateKey, n, plaintext);
+   modExponentMPZ(ciphertext, privateKey, n, plaintext);
 }
 
 void generateN(mpz_t prime1, mpz_t prime2, mpz_t n) {
@@ -73,30 +78,9 @@ void generateN(mpz_t prime1, mpz_t prime2, mpz_t n) {
 }
 
 void printPlaintext(mpz_t plaintext) {
-/*  FILE *out = fopen("plaintext.txt", "w");
-    mpz_out_str (out, 16, plaintext);*/
-  //gmp_printf("Here: %s\n", plaintext);
-
-//  fclose(out);
-
-//  printf("%s\n", (char *)plaintext);
-
-  FILE *out = fopen("plaintext.txt", "r");
-  int c, i=0;
-  char buffer[3];
-  buffer[2] = '\0';
-  
-
-  while ((c = getc(out)) != EOF) {
-
-    if ((i%2) == 0 && i != 0 ) {
-      fprintf(stdout, "%x\n", (char)atoi(buffer));
-    }
-
-    buffer[i%2] = c;
-    i++;
-  }
-  printf("\n");
-
-
+   size_t count = 1024;
+   char *buffer = (char *)calloc(count, sizeof(char));
+   
+   mpz_export((void*)buffer, &count, 1, sizeof( char), 1, 0, plaintext);
+   printf("%s\n", buffer);
 }

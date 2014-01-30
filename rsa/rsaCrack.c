@@ -24,7 +24,6 @@ int main(int argc, char**argv) {
   mpz_init(n5);
   mpz_init(n6);
 
-
   FILE *n1_file = fopen("n1.txt", "r");
   FILE *n2_file = fopen("n2.txt", "r");
   FILE *n3_file = fopen("n3.txt", "r");
@@ -71,7 +70,7 @@ int main(int argc, char**argv) {
 
   char *files[6] = {"n1", "n2", "n3", "n4", "n5", "n6"};
 
-  printf("RESULT: %s and %s have a common prime factor\n", files[matches[0]], files[matches[1]]);
+  printf("   Keys %s and %s have a common prime factor\n", files[matches[0]], files[matches[1]]);
   
   fclose(n1_file);
   fclose(n2_file);
@@ -89,14 +88,12 @@ int main(int argc, char**argv) {
   readMPZ(ciphertext, c_file);
   fclose(c_file);
   
-
   mpz_t privateKey, publicKey, plaintext;
   mpz_init(privateKey);
   mpz_init(publicKey);
   mpz_init(plaintext);
   
   mpz_set_ui(publicKey, E);
-
 
   printf("Decrypting...\n");
   //get n
@@ -110,14 +107,16 @@ int main(int argc, char**argv) {
   mpz_set(p, gcd);
   //product divided by prime
   //n2/p = q
-  mpz_tdiv_q_ui(q, n2, p);
+
+  mpz_cdiv_q(q, n2, p);
   //q is now other prime
   
   //get keys
   getKeysWithPrimes(p, q, publicKey, privateKey);
-  totient(p, q, n);
+  computeN(p, q, n);
   decrypt(plaintext, privateKey, n, ciphertext);
-
+  printf("Plaintext:\n");
+  
   printPlaintext(plaintext);
   
   return 0;
