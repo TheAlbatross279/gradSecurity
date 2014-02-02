@@ -1,2 +1,0 @@
-all:
-	gcc gmpFuncts.c -lgmp
