@@ -115,9 +115,22 @@ int main(int argc, char**argv) {
   getKeysWithPrimes(p, q, publicKey, privateKey);
   computeN(p, q, n);
   decrypt(plaintext, privateKey, n, ciphertext);
+  mpz_t temp, temp2;
+  mpz_init(temp);
+  mpz_init(temp2);
+
+ 
   printf("Plaintext:\n");
   
   printPlaintext(plaintext);
+
+/*  printf("Test\n");
+  encrypt(plaintext, publicKey, n, temp);
+  printMPZ(temp);
+  decrypt(temp2, privateKey, n, temp);
+  printMPZ(temp2); 
+  printf("Output:\n");
+  printPlaintext(temp2);*/
   
   return 0;
 }
