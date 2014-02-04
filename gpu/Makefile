@@ -1,4 +1,4 @@
-CFLAGS = -lgmp 
+CFLAGS = -lgmp -pg -g
 CC= gcc
 FLAGS= -o
 

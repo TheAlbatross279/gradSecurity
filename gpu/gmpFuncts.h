@@ -4,7 +4,7 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
-
+#define BASE_10 10
 void genRandNum(mpz_t rop);
 int isPrime(mpz_t rop);
 int getRandomPrime(mpz_t rop);
