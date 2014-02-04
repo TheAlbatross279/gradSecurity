@@ -7,6 +7,14 @@
 
 int main(int argc, char **argv) {
   //read in keys
+   mpz_t hello;
+   mpz_init(&hello);
+   
+   FILE *key_file = fopen("keys.txt", "r");
+   
+   
+
+
 
   //create row for key -- calloc
 

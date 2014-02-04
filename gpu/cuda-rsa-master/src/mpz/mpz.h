@@ -153,7 +153,7 @@ __device__ __host__ inline void mpz_set_str(mpz_t *mpz, const char *user_str) {
 
   const int bufsize = 1024;
   char buf[bufsize];
-  memcpy(buf, user_str, bufsize);
+  strcpy(buf, user_str);
   buf[bufsize - 1] = (char) 0;
   char *str = &buf[0];
 
@@ -177,7 +177,7 @@ __device__ __host__ inline void mpz_set_str(mpz_t *mpz, const char *user_str) {
   for (i = 0; i < num_digits; i ++) {
     str[len - i * char_per_digit] = (char) 0;
     char *start = str + (int) max(len - (i + 1) * char_per_digit, 0);
-    digit_t d = strtol(start, NULL, 16);
+    digit_t d = strtol(start, NULL, 10);
 
     /* keep track of whether or not every digit is zero */
     is_zero = is_zero && (d == 0);

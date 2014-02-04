@@ -16,6 +16,7 @@ int main(int argc, char**argv) {
   mpz_t rop;
   mpz_init(rop);
 
+
   mpz_t arr[NUM_KEYS];
   int j, i = 0;
   
