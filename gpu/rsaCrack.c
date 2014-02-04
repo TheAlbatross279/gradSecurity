@@ -34,7 +34,7 @@ int main(int argc, char**argv) {
 
   for (i=0; i < NUM_KEYS; i++) {
     matches[i] = (int *)calloc(NUM_KEYS, sizeof(int));
-    for (j=i+1; j < NUM_KEYS; j++) {
+    for (j=i+1; j < NUM_KEYS-1; j++) {
         mpz_gcd (gcd, arr[i], arr[j]);
         if (mpz_cmp_ui(gcd, 1) != 0) {
            matches[i][j] = 1;
