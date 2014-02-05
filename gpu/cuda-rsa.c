@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
    printf("Reading in keys...\n");
    
    while(fgets(buf, 1024, keys_file) && i < NUM_KEYS) {
-      mpz_init(arr[i]);
+      mpz_init(&arr[i]);
       mpz_set_str(&arr[i], buf);
 /*      mpz_get_str(&hello, buf2, 1024);
         fprintf(out_file, "%s\n", buf2);
