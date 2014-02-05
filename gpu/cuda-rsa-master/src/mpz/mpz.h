@@ -148,12 +148,16 @@ __device__ __host__ inline void mpz_set_str(mpz_t *mpz, const char *user_str) {
   unsigned num_digits;
   unsigned i;
   int is_zero;
-
+//  printf("user: %s\n\n\n", user_str);
+  
+  
   for (i = 0; i < mpz->capacity; i++) mpz->digits[i] = 0;
 
   const int bufsize = 1024;
   char buf[bufsize];
-  memcpy(buf, user_str, bufsize);
+  strcpy(buf, user_str);
+//  printf("buf: %s\n", buf);
+  fflush(stdin);
   buf[bufsize - 1] = (char) 0;
   char *str = &buf[0];
 
@@ -167,8 +171,10 @@ __device__ __host__ inline void mpz_set_str(mpz_t *mpz, const char *user_str) {
   }
 
   int len = cuda_strlen(str);
+
   int char_per_digit = LOG2_DIGIT_BASE / 4;
   num_digits = (len + char_per_digit - 1) / char_per_digit;
+//  printf("num: %d\n", num_digits);
   CHECK_MEM(mpz, num_digits);
 
   digits_set_zero(mpz->digits);
@@ -177,7 +183,7 @@ __device__ __host__ inline void mpz_set_str(mpz_t *mpz, const char *user_str) {
   for (i = 0; i < num_digits; i ++) {
     str[len - i * char_per_digit] = (char) 0;
     char *start = str + (int) max(len - (i + 1) * char_per_digit, 0);
-    digit_t d = strtol(start, NULL, 16);
+    digit_t d = strtol(start, NULL, 10);
 
     /* keep track of whether or not every digit is zero */
     is_zero = is_zero && (d == 0);
@@ -467,10 +473,13 @@ __device__ __host__ inline char* mpz_get_str(mpz_t *mpz, char *str, int bufsize)
         return NULL;
       }
       if (!print_zeroes) {
-        str_index += sprintf(str + str_index, "%x", digit);
+        str_index += sprintf(str + str_index, "%d", digit);
+      } 
+      else if (i==0) {
+         str_index += sprintf(str + str_index, "%d", digit);
       }
       else {
-        str_index += sprintf(str + str_index, "%08x", digit);
+        str_index += sprintf(str + str_index, "%08d", digit);
       }
       print_zeroes = 1;
     }
