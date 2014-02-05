@@ -1,22 +1,26 @@
 CFLAGS = -pg -g
 CC= gcc
-FLAGS= -o
+FLAGS= -O
+lib= -L/home/clupo/gmp/lib
+INC= -I/home/clupo/gmp/include
+libL= -lgmp
 
-rsa-gpu: cuda-rsa.o
-	$(CC) $(FLAGS) cudaRSA cuda-rsa.o $(CFLAGS)
-main-rsa: cuda-rsa.o
-	$(CC) cuda-rsa.c $(CFLAGS)
+rsa-gpu: cuda-rsa.o 
+	$(CC) -o cudaRSA cuda-rsa.o $(CFLAGS)
+main-rsa: cuda-rsa.c ./cuda-rsa-master/src/mpz/mpz.h 
+	$(CC) $(FLAGS) cuda-rsa.c $(CFLAGS)
+convert: convert.c
+	$(CC) $(CFLAGS) $(INC) $(lib) convert.c $(libL)
 
 rsa_cpu: rsaCrack.o gmpFuncts.o rsa.o
-	$(CC)  $(FLAGS) rsaCrack rsaCrack.o gmpFuncts.o rsa.o -I/home/clupo/gmp/include/ -L/home/clupo/gmp/lib $(CFLAGS)
+	$(CC) $(FLAGS)  $(include) $(lib) rsaCrack rsaCrack.o gmpFuncts.o rsa.o  $(CFLAGS)
 main: rsaCrack.o
-	$(CC)rsaCrack.c  -I/home/clupo/gmp/include/ -L/home/clupo/gmp/lib $(CFLAGS)
-
+	$(CC)  $(include) $(lib) rsaCrack.c $(CFLAGS)
 gmp_functs: gmpFucnts.o 
-	$(CC) gmpFuncts.c  -I/home/clupo/gmp/include/ -L/home/clupo/gmp/lib $(CFLAGS)
-
+	$(CC)  $(include) $(lib) gmpFuncts.c $(CFLAGS)
 rsa: rsa.o
-	$(CC) rsa.c -I/home/clupo/gmp/include/ -L/home/clupo/gmp/lib $(CFLAGS)
+	$(CC)  $(include) $(lib) rsa.c $(CFLAGS)
+
 
 clean:
-	rm *.o ./rsaCrack
+	rm *.o ./rsaCrack ./cudaRSA
