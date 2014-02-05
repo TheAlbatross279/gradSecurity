@@ -2,9 +2,11 @@
  * Author: Kim Paterson
  * 1/25/14
  */
-#include <stdlib.h>
-#include <stdio.h>
 #define BASE_10 10
+#include <stdio.h>
+#include <stdlib.h>
+
+
 void genRandNum(mpz_t rop);
 int isPrime(mpz_t rop);
 int getRandomPrime(mpz_t rop);

@@ -6,10 +6,15 @@
 #include <gmp.h>
 #include "rsa.h"
 #include "gmpFuncts.h"
-#define NUM_KEYS 200000
+#ifndef STDLIB
+#define STDLIB
+#include <stdlib.h>
+#include <stdio.h>
+#endif
+
+#define NUM_KEYS 10000
 
 int main(int argc, char**argv) {
-
   printf("Checking RSA keys...\n");
   FILE *keys_file = fopen("keys.txt", "r");
 
@@ -28,37 +33,36 @@ int main(int argc, char**argv) {
   }
   fclose(keys_file);
 
-  mpz_t gcd;
+  mpz_t gcd, p, privateKey, publicKey;
   mpz_init(gcd);
   int *matches[NUM_KEYS];
-
+  int count = 0;
+  mpz_init(privateKey);
+  mpz_init(publicKey);
+  //set public key
+  mpz_set_ui(publicKey, E);
+  FILE *file = fopen("privateKeys.txt", "w");
   for (i=0; i < NUM_KEYS; i++) {
     matches[i] = (int *)calloc(NUM_KEYS, sizeof(int));
-    for (j=i+1; j < NUM_KEYS-1; j++) {
-        mpz_gcd (gcd, arr[i], arr[j]);
+    for (j=i+1; j < NUM_KEYS-2; j++) {
+      mpz_init(p);
+      mpz_gcd (gcd, arr[i], arr[j]);
         if (mpz_cmp_ui(gcd, 1) != 0) {
            matches[i][j] = 1;
+           count++;
+           mpz_set(p, gcd);
+           getPrivateKey(p, arr[i], publicKey, privateKey);
+
+           outputPrivateKey(privateKey, file);
         } 
     }
   }
-
+  fclose(file);
   printf("done.\n");
 
   printf("Keys that match...\n");
-  int count = 0;
-//  FILE  *output = fopen("cpu-output.txt", "w");  
-  for (i=0; i < NUM_KEYS; i++) {
-    for (j=0; j < NUM_KEYS; j++) {
-//      fprintf(output, "%d ", matches[i][j]);
-      if (matches[i][j] == 1) {
-        count++;
-//             matches[j][i] = 1;
-      }
-    }
-//    fprintf(output,"\n");
-  }
-  //fclose(output);
   printf("   Percent of matches: %.4f%%, %d/%d\n", ((double)count)/NUM_KEYS, count, NUM_KEYS);
 
   return 0;
 }
+

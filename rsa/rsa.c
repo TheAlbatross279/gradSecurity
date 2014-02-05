@@ -83,3 +83,18 @@ void printPlaintext(mpz_t plaintext) {
    mpz_export((void*)buffer, &count, 1, sizeof( char), 1, 0, plaintext);
    printf("%s\n", buffer);
 }
+
+mpz_t getPrivateKey(mpz_t p, mpz_t modulii, mpz_t publicKey) {
+  mpz_t q;
+  mpz_init(q);
+  
+  mpz_cdiv_q(q, modulii, p);
+  //q is now other prime
+  mpz_t privateKey;
+  mpz_init(privateKey);
+  //get keys
+  getKeysWithPrimes(p, q, publicKey, privateKey);
+  return privateKey;
+
+}
+

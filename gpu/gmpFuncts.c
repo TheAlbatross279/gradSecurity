@@ -6,6 +6,7 @@
 #include <gmp.h>
 #include "gmpFuncts.h"
 #include <time.h>
+
 #define BIT_COUNT 512
 #define REPS 50
 
