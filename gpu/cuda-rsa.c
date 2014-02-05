@@ -6,11 +6,10 @@
  */
 #include <stdio.h>
 #include "./cuda-rsa-master/src/mpz/mpz.h"
-#define NUM_KEYS 6
-#define BYTE_ARRAY_SIZE 25000
+#include "cuda-rsa.h"
+
 
 int main(int argc, char **argv) {
-   
   //read in keys
    mpz_t hello;
    mpz_init(&hello);
@@ -23,8 +22,11 @@ int main(int argc, char **argv) {
    char buf[400];
    char buf2[1024];
    int i = 0;
-
-   mpz_t arr[NUM_KEYS];
+   mpz_t *arr = (mpz_t *)calloc(sizeof(mpz_t), NUM_KEYS);
+   if (!arr) {
+      fprintf(stderr, "Calloc failed to allocate memory\n");
+      exit(1);
+   }
    
    printf("Reading in keys...\n");
    
@@ -41,10 +43,12 @@ int main(int argc, char **argv) {
    fclose(keys_file);
    printf("done.\n");
 
-   //create row for key -- calloc
-   char *bit_arr[25000];
+   //create matrix for key -- calloc
+   char *bit_arr = (char *)calloc(sizeof(char), BYTE_ARRAY_SIZE * 
+    BYTE_ARRAY_SIZE);
 
   //copy key to device
+   setUpKernel(arr, bit_arr);
 
   //output priavte keys that match
   return 0;
