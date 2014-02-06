@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
    printf("done.\n");
 
    //create matrix for key -- calloc
-   char *bit_arr = (char *)calloc(sizeof(char), BYTE_ARRAY_SIZE * 
+   int *bit_arr = (int *)calloc(sizeof(int), BYTE_ARRAY_SIZE * 
     BYTE_ARRAY_SIZE);
 
   //copy key to device
