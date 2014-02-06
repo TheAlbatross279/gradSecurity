@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include "./cuda-rsa-master/src/mpz/mpz.h"
 
+#define ROW_SIZE 10
+
 extern "C" {
 #include "cuda-rsa.h"
 }
@@ -39,9 +41,9 @@ __global__ void findGCD(mpz_t *arrD, int keyPos, char *bitRowD) {
    mpz_init(&quo);
    mpz_init(&c);
    mpz_set(&a, &key);
-   mpz_set(&b, &arrD[toComp]);
+   mpz_set(&b, &arrD[toComp + keyPos]);
 
-   if (toComp > keyPos) {
+   if (toComp + keyPos > keyPos && toComp + keyPos < NUM_KEYS) {
       while(!digits_is_zero(a.digits, a.capacity)) {
          mpz_set(&c, &a);
          mpz_div(&quo, &a, &b, &a);
@@ -50,7 +52,7 @@ __global__ void findGCD(mpz_t *arrD, int keyPos, char *bitRowD) {
      
       if (mpz_compare(&one, &b)) {
       /*GCD greater than one was found*/
-         bitRowD[toComp / sizeof(char)] |= mask;
+         atomicOr((int *)&bitRowD[toComp / sizeof(char)], (int)mask);
       }
    }
    
@@ -60,34 +62,35 @@ __global__ void findGCD(mpz_t *arrD, int keyPos, char *bitRowD) {
 extern "C"
 void setUpKernel(mpz_t *arr, char *bitMatrix) {
    /*Set up kernel to run 200000 threads*/
-   dim3 dimGrid(2000);
-   dim3 dimBlock(100);
+   dim3 dimGrid(10);
+   dim3 dimBlock(8);
 
    mpz_t *arrD;
    char *bitRowD;
    int count = 0, keyArrSize = sizeof(mpz_t) * NUM_KEYS;
-   int rowSize = sizeof(char) * BYTE_ARRAY_SIZE;
+   //int rowSize = 80; //sizeof(char) * BYTE_ARRAY_SIZE;
+   int byteOffset = 0;
    
    /*Allocate space on device for bitMatrix, and keys*/
    HANDLE_ERROR(cudaMalloc(&arrD, keyArrSize));
-   HANDLE_ERROR(cudaMalloc(&bitRowD, rowSize));
+   HANDLE_ERROR(cudaMalloc(&bitRowD, ROW_SIZE));
    
    /*Copy keys onto device*/
    HANDLE_ERROR(cudaMemcpy(arrD, arr, keyArrSize, cudaMemcpyHostToDevice));
      
    while(count < NUM_KEYS) {
       /*Clear the bit vector row*/
-      HANDLE_ERROR(cudaMemset(bitRowD, 0, rowSize));
+      HANDLE_ERROR(cudaMemset(bitRowD, 0, ROW_SIZE));
       
       /*Launch Kernel*/
       printf("launching kernel\n");
       findGCD<<<dimGrid, dimBlock>>>(arrD, count, bitRowD);
       printf("back from kernel\n");
       /*Copy computed bit vector into bit matrix*/
-      HANDLE_ERROR(cudaMemcpy(bitMatrix + (count * BYTE_ARRAY_SIZE), 
-       bitRowD, rowSize, cudaMemcpyDeviceToHost));
-
-      count = NUM_KEYS;
+      HANDLE_ERROR(cudaMemcpy(bitMatrix + byteOffset, bitRowD, 10, 
+       cudaMemcpyDeviceToHost));
+      byteOffset += ROW_SIZE;
+      count += 80;
    }
 }
 
