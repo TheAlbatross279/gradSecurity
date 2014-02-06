@@ -8,7 +8,8 @@
 #include <stdio.h>
 #include "./cuda-rsa-master/src/mpz/mpz.h"
 
-#define ROW_SIZE 10
+#define ROW_SIZE 8
+#define KEYS_PER_KERNEL 64
 
 extern "C" {
 #include "cuda-rsa.h"
@@ -25,13 +26,13 @@ static void HandleError(cudaError_t err, const char *file, int line ) {
 #define HANDLE_ERROR( err ) (HandleError( err, __FILE__, __LINE__ ))
 
 
-__global__ void findGCD(mpz_t *arrD, int keyPos, char *bitRowD) {
+__global__ void findGCD(mpz_t *arrD, int keyPos, int *bitRowD) {
    /*Move key to be gcd'd into sharedMem*/
    __shared__ mpz_t key;
    mpz_init(&key);
    mpz_set(&key, &arrD[keyPos]);
    int toComp = blockIdx.x * blockDim.x + threadIdx.x;
-   char mask = 1 << (toComp % sizeof(char));
+   int mask = 1 << (toComp % sizeof(int));
    mpz_t a, b, c, quo, one;
    
    mpz_init(&one);
@@ -52,7 +53,7 @@ __global__ void findGCD(mpz_t *arrD, int keyPos, char *bitRowD) {
      
       if (mpz_compare(&one, &b)) {
       /*GCD greater than one was found*/
-         atomicOr((int *)&bitRowD[toComp / sizeof(char)], (int)mask);
+         atomicOr(&bitRowD[toComp / sizeof(int)], mask);
       }
    }
    
@@ -60,13 +61,13 @@ __global__ void findGCD(mpz_t *arrD, int keyPos, char *bitRowD) {
 
 /*Sets up the GPU for the kernel call.*/
 extern "C"
-void setUpKernel(mpz_t *arr, char *bitMatrix) {
+void setUpKernel(mpz_t *arr, int *bitMatrix) {
    /*Set up kernel to run 200000 threads*/
-   dim3 dimGrid(10);
+   dim3 dimGrid(8);
    dim3 dimBlock(8);
 
    mpz_t *arrD;
-   char *bitRowD;
+   int *bitRowD;
    int count = 0, keyArrSize = sizeof(mpz_t) * NUM_KEYS;
    //int rowSize = 80; //sizeof(char) * BYTE_ARRAY_SIZE;
    int byteOffset = 0;
@@ -87,10 +88,10 @@ void setUpKernel(mpz_t *arr, char *bitMatrix) {
       findGCD<<<dimGrid, dimBlock>>>(arrD, count, bitRowD);
       printf("back from kernel\n");
       /*Copy computed bit vector into bit matrix*/
-      HANDLE_ERROR(cudaMemcpy(bitMatrix + byteOffset, bitRowD, 10, 
+      HANDLE_ERROR(cudaMemcpy(bitMatrix + byteOffset, bitRowD, ROW_SIZE, 
        cudaMemcpyDeviceToHost));
-      byteOffset += ROW_SIZE;
-      count += 80;
+      byteOffset += 2;
+      count += KEYS_PER_KERNEL;
    }
 }
 
