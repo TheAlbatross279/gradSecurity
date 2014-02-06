@@ -12,7 +12,7 @@
 #include <stdio.h>
 #endif
 
-#define NUM_KEYS 10000
+#define NUM_KEYS 200000
 
 int main(int argc, char**argv) {
   printf("Checking RSA keys...\n");
@@ -55,6 +55,7 @@ int main(int argc, char**argv) {
            getPrivateKey(p, arr[i], publicKey, privateKey);
 
            outputPrivateKey(privateKey, file);
+           fprintf(file, "\n");
         } 
     }
   }

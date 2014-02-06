@@ -2,7 +2,7 @@ NCC=nvcc
 NVFLAGS=-gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=sm_35
 CFLAGS = -pg -g
 CC= gcc
-FLAGS= -O
+FLAGS= -O -c
 lib= -L/home/clupo/gmp/lib
 INC= -I/home/clupo/gmp/include
 libL= -lgmp
@@ -19,13 +19,13 @@ convert: convert.c
 	$(CC) $(CFLAGS) $(INC) $(lib) convert.c $(libL)
 
 rsa_cpu: rsaCrack.o gmpFuncts.o rsa.o
-	$(CC) $(FLAGS)  $(include) $(lib) rsaCrack rsaCrack.o gmpFuncts.o rsa.o  $(CFLAGS)
-main: rsaCrack.o
-	$(CC)  $(include) $(lib) rsaCrack.c $(CFLAGS)
+	$(CC) -o rsaCrack rsaCrack.o gmpFuncts.o rsa.o  $(CFLAGS) $(libL)
+main: rsaCrack.c
+	$(CC) $(FLAGS) rsaCrack.c $(CFLAGS) $(libL)
 gmp_functs: gmpFucnts.o 
-	$(CC)  $(include) $(lib) gmpFuncts.c $(CFLAGS)
-rsa: rsa.o
-	$(CC)  $(include) $(lib) rsa.c $(CFLAGS)
+	$(CC) $(FLAGS) gmpFuncts.c $(CFLAGS) $(libL)
+rsa: rsa.c
+	$(CC) $(FLAGS) rsa.c $(CFLAGS) $(libL)
 
 
 clean:
