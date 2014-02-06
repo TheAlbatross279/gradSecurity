@@ -15,8 +15,8 @@ rsa-gpu: cuda-rsa.o
 	$(CC) -o cudaRSA cuda-rsa.o $(CFLAGS)
 main-rsa: cuda-rsa.c ./cuda-rsa-master/src/mpz/mpz.h 
 	$(CC) $(FLAGS) cuda-rsa.c $(CFLAGS)
-convert: convert.c
-	$(CC) $(CFLAGS) $(INC) $(lib) convert.c $(libL)
+key-rsa: rsaio.c
+	$(CC) $(INC) $(lib) $(FLAGS) $(CFLAGS) rsaio.c $(libL)
 
 rsa_cpu: rsaCrack.o gmpFuncts.o rsa.o
 	$(CC) -o rsaCrack rsaCrack.o gmpFuncts.o rsa.o  $(CFLAGS) $(libL)

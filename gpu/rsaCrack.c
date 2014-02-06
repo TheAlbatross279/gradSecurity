@@ -12,7 +12,7 @@
 #include <stdio.h>
 #endif
 
-#define NUM_KEYS 200000
+#define NUM_KEYS 20000
 
 int main(int argc, char**argv) {
   printf("Checking RSA keys...\n");
@@ -33,7 +33,7 @@ int main(int argc, char**argv) {
 //    mpz_init(rop);
   }
   fclose(keys_file);
-
+  printf("Done reading keys...\n");
   mpz_t gcd, p, privateKey, publicKey;
   mpz_init(gcd);
   int *matches[NUM_KEYS];
@@ -53,7 +53,7 @@ int main(int argc, char**argv) {
            count++;
            mpz_set(p, gcd);
            getPrivateKey(p, arr[i], publicKey, privateKey);
-
+           printf("printing match...\n");
            outputPrivateKey(privateKey, file);
            fprintf(file, "\n");
         } 

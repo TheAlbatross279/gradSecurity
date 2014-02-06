@@ -5,7 +5,7 @@
  * Cuda-rsa code licensed from https://github.com/dmatlack/cuda-rsa
  */
 #include <stdio.h>
-#include "./cuda-rsa-master/src/mpz/mpz.h"
+#include "rsaio.h"
 #include "cuda-rsa.h"
 
 
@@ -50,7 +50,11 @@ int main(int argc, char **argv) {
   //copy key to device
    setUpKernel(arr, bit_arr);
 
+   //generate keys from each pair 
+   
+
   //output priavte keys that match
+   //outputKeys(bit_arr, out_file);
    
   return 0;
 }
