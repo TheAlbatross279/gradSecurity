@@ -13,10 +13,10 @@ rsa-cuda: cuda-rsa.c kernel-rsa.cu
 
 rsa-gpu: cuda-rsa.o 
 	$(CC) -o cudaRSA cuda-rsa.o $(CFLAGS)
-main-rsa: cuda-rsa.c ./cuda-rsa-master/src/mpz/mpz.h 
+main-rsa: cuda-rsa.c 
 	$(CC) $(FLAGS) cuda-rsa.c $(CFLAGS)
-key-rsa: rsaio.c
-	$(CC) $(INC) $(lib) $(FLAGS) $(CFLAGS) rsaio.c $(libL)
+key-rsa: rsaio.o
+	$(CC) $(FLAGS) $(CFLAGS) rsaio.c $(libL)
 
 rsa_cpu: rsaCrack.o gmpFuncts.o rsa.o
 	$(CC) -o rsaCrack rsaCrack.o gmpFuncts.o rsa.o  $(CFLAGS) $(libL)

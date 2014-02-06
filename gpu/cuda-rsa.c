@@ -7,12 +7,12 @@
 #include <stdio.h>
 #include "rsaio.h"
 #include "cuda-rsa.h"
-
-
+#ifndef GMP
+#define GMP
+#include <gmp.h>
+#endif
 int main(int argc, char **argv) {
   //read in keys
-   mpz_t hello;
-   mpz_init(&hello);
 
 //   printf("Keys:\n");
    FILE *keys_file = fopen("keys.txt", "r");
@@ -31,8 +31,8 @@ int main(int argc, char **argv) {
    printf("Reading in keys...\n");
    
    while(fgets(buf, 1024, keys_file) && i < NUM_KEYS) {
-      mpz_init(&arr[i]);
-      mpz_set_str(&arr[i], buf);
+      mpz_init(arr[i]);
+      mpz_set_str(arr[i], buf);
 /*      mpz_get_str(&hello, buf2, 1024);
         fprintf(out_file, "%s\n", buf2);
       memset(buf2, 0, 1024);

@@ -12,7 +12,7 @@
 #include <stdio.h>
 #endif
 
-#define NUM_KEYS 20000
+#define NUM_KEYS 200000
 
 int main(int argc, char**argv) {
   printf("Checking RSA keys...\n");
@@ -20,7 +20,6 @@ int main(int argc, char**argv) {
 
   mpz_t rop;
   mpz_init(rop);
-
 
   mpz_t arr[NUM_KEYS];
   int j, i = 0;
@@ -33,10 +32,10 @@ int main(int argc, char**argv) {
 //    mpz_init(rop);
   }
   fclose(keys_file);
-  printf("Done reading keys...\n");
+
   mpz_t gcd, p, privateKey, publicKey;
   mpz_init(gcd);
-  int *matches[NUM_KEYS];
+//  int matches[NUM_KEYS][NUM_KEYS];
   int count = 0;
   mpz_init(privateKey);
   mpz_init(publicKey);
@@ -44,21 +43,22 @@ int main(int argc, char**argv) {
   mpz_set_ui(publicKey, E);
   FILE *file = fopen("privateKeys.txt", "w");
   for (i=0; i < NUM_KEYS; i++) {
-    matches[i] = (int *)calloc(NUM_KEYS, sizeof(int));
+//    matches[i] = (int *)calloc(NUM_KEYS, sizeof(int));
     for (j=i+1; j < NUM_KEYS-2; j++) {
       mpz_init(p);
       mpz_gcd (gcd, arr[i], arr[j]);
         if (mpz_cmp_ui(gcd, 1) != 0) {
-           matches[i][j] = 1;
+//           matches[i][j] = 1;
            count++;
            mpz_set(p, gcd);
            getPrivateKey(p, arr[i], publicKey, privateKey);
-           printf("printing match...\n");
+
            outputPrivateKey(privateKey, file);
            fprintf(file, "\n");
         } 
     }
   }
+
   fclose(file);
   printf("done.\n");
 

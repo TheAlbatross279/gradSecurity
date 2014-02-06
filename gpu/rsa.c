@@ -41,6 +41,9 @@ void getKeysWithPrimes(mpz_t p, mpz_t q, mpz_t publicKey, mpz_t privateKey) {
 
   //set privateKey
   modExponentMPZ(publicKey, neg_one, n, privateKey);
+  mpz_clear(neg_one);
+  mpz_clear(p);
+  mpz_clear(q);
 }
 
 void computeN(mpz_t p, mpz_t q, mpz_t n) {
@@ -61,7 +64,8 @@ void totient(mpz_t prime1, mpz_t prime2, mpz_t n) {
 
   //(p-1)(q-1)
   mpz_mul(n, p, q);
-  
+  mpz_clear(p);
+  mpz_clear(q);
 }
 
 void encrypt(mpz_t plaintext, mpz_t publicKey, mpz_t n, mpz_t ciphertext) {
