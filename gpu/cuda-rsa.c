@@ -29,8 +29,17 @@ int main(int argc, char **argv) {
       fprintf(stderr, "Calloc failed to allocate memory\n");
       exit(1);
    }
+
+   //alloc array of keys
+   mpz_t *key_arr = (int *)calloc(sizeof(int *), NUM_KEYS);
+   if (!key_arr) {
+      fprintf(stderr, "Calloc failed to allocate memory\n");
+      exit(1);
+   }
+
    mpz_t rop;
    mpz_init(rop);
+
    printf("Reading in keys...\n");
    while(mpz_inp_str(rop, keys_file, BASE_10) && i < NUM_KEYS) {
      if (!arr[i]) {
@@ -39,6 +48,7 @@ int main(int argc, char **argv) {
      }
      mpz_init(arr[i]);
      mpz_set(arr[i], rop);
+     key_arr[i] = convertMPZtoInt(rop);
      i++;
    }
    mpz_clear(rop);
@@ -50,11 +60,6 @@ int main(int argc, char **argv) {
    int *bit_arr = (int *)calloc(sizeof(int), BYTE_ARRAY_SIZE * 
     BYTE_ARRAY_SIZE);
 
-   //convert to our big-integer format
-   for (i=0; i < NUM_KEYS; i++) {
-     
-   }
-
   //copy key to device
 //   setUpKernel(arr, bit_arr);
 
@@ -62,7 +67,7 @@ int main(int argc, char **argv) {
    
 
   //output priavte keys that match
-   //outputKeys(bit_arr, out_file);
+   //outputKeys(bit_arr, out_file, BYTE_ARRAY_SIZE, arr);
    
   return 0;
 }
