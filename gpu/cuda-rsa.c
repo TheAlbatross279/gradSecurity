@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
     BYTE_ARRAY_SIZE);
 
   //copy key to device
-//   setUpKernel(arr, bit_arr);
+//   setUpKernel(key_arr, bit_arr);
 
    //generate keys from each pair 
    

@@ -20,6 +20,9 @@ void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr) {
   char mask = 1;
   mpz_t privateKey;
   //go through array and get pairs
+
+  //for i, j = i+1, if index != 0, compute gcd if > 1, then compute private key 
+
   for (i=0; i < byte_array_size; i++) {
     for (j=i+1; j < byte_array_size; j++) {
       //index is i*NUM_KEYS + j -- index of byte
