@@ -26,6 +26,42 @@ static void HandleError(cudaError_t err, const char *file, int line ) {
 #define HANDLE_ERROR( err ) (HandleError( err, __FILE__, __LINE__ ))
 
 
+/*Device function that returns zero if the int passed is zero and 1 if
+  the int passed is nonzero*/
+__device__ int parallelNonZero(int *x) {
+   if (__any(x[threadIdx.x]))
+      return 1;
+   return 0;
+}
+
+
+/*This function doese parrallel subtraction on x and y and stores the 
+  result into result.*/
+__device__ void parallelSubtract(int *result, int *x, int *y) {
+   unsigned int borrows[32];
+   unsigned int t;
+
+   if (!threadIdx.x) 
+      borrows[31] = 0;
+   
+   t = x[threadIdx.x] - y[threadIdx.x];
+
+   if (threadIdx.x)
+      borrows[threadIdx.x - 1] = (t > x[threadIdx.x]);
+
+   while (parallelNonZero(borrows)) {
+      if (borrows[threadIdx.x]) {
+         t--;
+      }
+      
+      if (threadIdx.x) {
+         borrows[threadIdx.x - 1] = (t == 0xffffffffU && 
+          borrows[threadIdx.x]);
+      }
+   }
+   result[threadIdx.x] = t;
+}
+
 __global__ void findGCD(mpz_t *arrD, int keyPos, int *bitRowD) {
    /*Move key to be gcd'd into sharedMem*/
    __shared__ mpz_t key;
@@ -71,6 +107,7 @@ void setUpKernel(mpz_t *arr, int *bitMatrix) {
    int count = 0, keyArrSize = sizeof(mpz_t) * NUM_KEYS;
    //int rowSize = 80; //sizeof(char) * BYTE_ARRAY_SIZE;
    int byteOffset = 0;
+   int ndx = 0;
    
    /*Allocate space on device for bitMatrix, and keys*/
    HANDLE_ERROR(cudaMalloc(&arrD, keyArrSize));
@@ -79,19 +116,23 @@ void setUpKernel(mpz_t *arr, int *bitMatrix) {
    /*Copy keys onto device*/
    HANDLE_ERROR(cudaMemcpy(arrD, arr, keyArrSize, cudaMemcpyHostToDevice));
      
-   while(count < NUM_KEYS) {
+   while(ndx < NUM_KEYS) {
       /*Clear the bit vector row*/
       HANDLE_ERROR(cudaMemset(bitRowD, 0, ROW_SIZE));
       
       /*Launch Kernel*/
       printf("launching kernel\n");
-      findGCD<<<dimGrid, dimBlock>>>(arrD, count, bitRowD);
+      findGCD<<<dimGrid, dimBlock>>>(arrD, ndx, bitRowD);
       printf("back from kernel\n");
       /*Copy computed bit vector into bit matrix*/
       HANDLE_ERROR(cudaMemcpy(bitMatrix + byteOffset, bitRowD, ROW_SIZE, 
        cudaMemcpyDeviceToHost));
       byteOffset += 2;
       count += KEYS_PER_KERNEL;
+      if (count > NUM_KEYS) {
+         count = 0; 
+         ndx++;
+      }
    }
 }
 
