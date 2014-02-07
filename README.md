@@ -1,4 +1,4 @@
-gradSecurity
-============
+cuda-rsa
+========
 
-CSC 556 
+[Project Site](http://dmatlack.github.io/cuda-rsa)

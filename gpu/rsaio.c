@@ -7,24 +7,14 @@
 #include "rsaio.h"
 //#include "/home/clupo/gmp/mpz.h"
 #include <gmp.h>
+#include "cuda-rsa.h"
 #define NUM_KEYS 200000
-#define BITS_PER_INT 32
 
-void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size) {
+
+void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr) {
   //read in keys
   FILE *keys_file = fopen("keys.txt", "r");
-  mpz_t arr[NUM_KEYS];
   int i = 0, j = 0;
-
-  mpz_t rop;
-  mpz_init(rop);
-
-  while(mpz_inp_str(rop, keys_file, BASE_10) && i < NUM_KEYS) {
-    mpz_init(arr[i]);
-    mpz_set(arr[i], rop);
-    i++;
-  }
-  fclose(keys_file);
 
   int k, key_ndx, byte_ndx;
   char mask = 1;
@@ -40,10 +30,10 @@ void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size) {
         key_ndx = j * BITS_PER_INT + k;
         mask = 1 << k;
         if (byte & mask) {
-          //arr[i*BYTES_PER_CHAR+k], arr[key_ndx]
-          generateKeys(arr[i * BYTES_PER_INT + k], arr[key_ndx], privateKey);
-          outputPrivateKey(privateKey, file);
-          fprintf(file, "\n");
+          //get keys
+          generateKeys(arr[i * BITS_PER_INT + k], arr[key_ndx], privateKey);
+          outputPrivateKey(privateKey, outfile);
+          fprintf(outfile, "\n");
         }
       }
     }

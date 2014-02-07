@@ -8,15 +8,17 @@ INC= -I/home/clupo/gmp/include
 libL= -lgmp
 
 
-rsa-cuda: cuda-rsa.c kernel-rsa.cu
+rsa-cuda: cuda-rsa.c #kernel-rsa.cu
 	$(NCC) $(NVFLAGS) -o cudaRSA $^ $(CFLAGS)
 
-rsa-gpu: cuda-rsa.o 
-	$(CC) -o cudaRSA cuda-rsa.o $(CFLAGS)
+rsa-gpu: cuda-rsa.o bigInt.o rsaio.o
+	$(CC) -o cudaRSA cuda-rsa.o bigInt.o rsaio.o $(CFLAGS) $(libL)
 main-rsa: cuda-rsa.c 
-	$(CC) $(FLAGS) cuda-rsa.c $(CFLAGS)
-key-rsa: rsaio.o
-	$(CC) $(FLAGS) $(CFLAGS) rsaio.c $(libL)
+	$(CC) $(FLAGS) cuda-rsa.c $(CFLAGS) $(libL)
+key-rsa: rsaio.c
+	$(CC) $(FLAGS) $(CFLAGS) rsaio.c $(libL) 
+bigInt: bigInt.c
+	$(CC) $(FLAGS) $(CFLAGS) bigInt.c $(libL) 
 
 rsa_cpu: rsaCrack.o gmpFuncts.o rsa.o
 	$(CC) -o rsaCrack rsaCrack.o gmpFuncts.o rsa.o  $(CFLAGS) $(libL)

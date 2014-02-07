@@ -5,8 +5,11 @@
  * Cuda-rsa code licensed from https://github.com/dmatlack/cuda-rsa
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include "rsaio.h"
 #include "cuda-rsa.h"
+#include "bigInt.h"
+
 #ifndef GMP
 #define GMP
 #include <gmp.h>
@@ -19,27 +22,27 @@ int main(int argc, char **argv) {
    FILE *out_file = fopen("outfile.txt", "w");
    
    //read file
-   char buf[400];
-   char buf2[1024];
+
    int i = 0;
    mpz_t *arr = (mpz_t *)calloc(sizeof(mpz_t), NUM_KEYS);
    if (!arr) {
       fprintf(stderr, "Calloc failed to allocate memory\n");
       exit(1);
    }
-   
+   mpz_t rop;
+   mpz_init(rop);
    printf("Reading in keys...\n");
-   
-   while(fgets(buf, 1024, keys_file) && i < NUM_KEYS) {
-      mpz_init(arr[i]);
-      mpz_set_str(arr[i], buf);
-/*      mpz_get_str(&hello, buf2, 1024);
-        fprintf(out_file, "%s\n", buf2);
-      memset(buf2, 0, 1024);
-*/
-      memset(buf, 0, 400);
-      i++;
+   while(mpz_inp_str(rop, keys_file, BASE_10) && i < NUM_KEYS) {
+     if (!arr[i]) {
+       perror("malloc");
+       exit(1);
+     }
+     mpz_init(arr[i]);
+     mpz_set(arr[i], rop);
+     i++;
    }
+   mpz_clear(rop);
+
    fclose(keys_file);
    printf("done.\n");
 
@@ -47,8 +50,13 @@ int main(int argc, char **argv) {
    int *bit_arr = (int *)calloc(sizeof(int), BYTE_ARRAY_SIZE * 
     BYTE_ARRAY_SIZE);
 
+   //convert to our big-integer format
+   for (i=0; i < NUM_KEYS; i++) {
+     
+   }
+
   //copy key to device
-   setUpKernel(arr, bit_arr);
+//   setUpKernel(arr, bit_arr);
 
    //generate keys from each pair 
    
