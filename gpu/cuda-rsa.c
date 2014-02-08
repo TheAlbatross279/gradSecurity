@@ -4,16 +4,18 @@
  * 
  * Cuda-rsa code licensed from https://github.com/dmatlack/cuda-rsa
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include "rsaio.h"
-#include "cuda-rsa.h"
-#include "bigInt.h"
 
 #ifndef GMP
 #define GMP
 #include <gmp.h>
 #endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "rsaio.h"
+#include "cuda-rsa.h"
+#include "bigInt.h"
+
 int main(int argc, char **argv) {
   //read in keys
 
@@ -25,14 +27,14 @@ int main(int argc, char **argv) {
    int i = 0;
    mpz_t *arr = (mpz_t *)calloc(sizeof(mpz_t), NUM_KEYS);
    if (!arr) {
-      fprintf(stderr, "Calloc failed to allocate memory\n");
+      perror("calloc");
       exit(1);
    }
 
    //alloc array of keys
-   mpz_t *key_arr = (int *)calloc(sizeof(int *), NUM_KEYS);
+   bigInt *key_arr = (bigInt *)calloc(sizeof(bigInt), NUM_KEYS);
    if (!key_arr) {
-      fprintf(stderr, "Calloc failed to allocate memory\n");
+      perror("calloc");
       exit(1);
    }
 
@@ -47,7 +49,7 @@ int main(int argc, char **argv) {
      }
      mpz_init(arr[i]);
      mpz_set(arr[i], rop);
-     key_arr[i] = convertMPZtoInt(rop);
+     convertMPZtoInt(rop, key_arr[i].values);
      i++;
    }
    mpz_clear(rop);
@@ -56,8 +58,8 @@ int main(int argc, char **argv) {
    printf("done.\n");
 
    //create matrix for key -- calloc
-   int *bit_arr = (int *)calloc(sizeof(int), BYTE_ARRAY_SIZE * 
-    BYTE_ARRAY_SIZE);
+   int *bit_arr = (int *)calloc(sizeof(int), INT_ARRAY_SIZE * 
+    INT_ARRAY_SIZE);
 
   //copy key to device
 //   setUpKernel(key_arr, bit_arr);
@@ -66,7 +68,7 @@ int main(int argc, char **argv) {
    
 
   //output priavte keys that match
-   //outputKeys(bit_arr, out_file, BYTE_ARRAY_SIZE, arr);
+   //outputKeys(bit_arr, out_file, INT_ARRAY_SIZE, arr);
    
   return 0;
 }

@@ -1,5 +1,15 @@
+#ifndef BIG_INT_H
+#define BIG_INT_H
 #ifndef GMP
 #define GMP
 #include <gmp.h>
 #endif
-int *convertMPZtoInt(mpz_t integer);
+
+
+typedef struct {
+   uint32_t values[32];
+} bigInt;
+
+void convertMPZtoInt(mpz_t integer, uint32_t *toFill);
+
+#endif
