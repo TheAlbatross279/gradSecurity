@@ -49,9 +49,15 @@ int main(int argc, char **argv) {
      }
      mpz_init(arr[i]);
      mpz_set(arr[i], rop);
+     mpz_set(temp2, rop);
      convertMPZtoInt(rop, key_arr[i].values);
+     //testing mpz
+
      i++;
    }
+
+
+
 
    printf("found %d keys.\n", i);
    mpz_clear(rop);

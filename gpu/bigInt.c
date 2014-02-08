@@ -12,6 +12,11 @@
 
 void convertMPZtoInt(mpz_t integer, uint32_t *toFill) {
   //int *bigInt = (int *)calloc(sizeof(int), BYTE_ARRAY_SIZE);
-  int temp = INT_ARRAY_SIZE;
+  int temp = 32;
   mpz_export(toFill, &temp, 1, 4, 0, 0, integer);
+}
+
+void convertIntToMPZ(uint32_t *integer, mpz_t toFill) {
+  int temp = 32;
+  mpz_import(toFill, temp, 1, 4, 0, 0, integer);
 }

@@ -33,7 +33,7 @@ int main(int argc, char**argv) {
   }
   fclose(keys_file);
 
-  mpz_t gcd, p, privateKey, publicKey;
+  mpz_t gcd, p, q, privateKey, publicKey;
   mpz_init(gcd);
 //  int matches[NUM_KEYS][NUM_KEYS];
   int count = 0;
@@ -41,17 +41,20 @@ int main(int argc, char**argv) {
   mpz_init(publicKey);
   //set public key
   mpz_set_ui(publicKey, E);
+
+
   FILE *file = fopen("privateKeys.txt", "w");
+  mpz_init(p);
+  mpz_init(q);
   for (i=0; i < NUM_KEYS; i++) {
 //    matches[i] = (int *)calloc(NUM_KEYS, sizeof(int));
     for (j=i+1; j < NUM_KEYS-2; j++) {
-      mpz_init(p);
       mpz_gcd (gcd, arr[i], arr[j]);
         if (mpz_cmp_ui(gcd, 1) != 0) {
 //           matches[i][j] = 1;
            count++;
            mpz_set(p, gcd);
-           getPrivateKey(p, arr[i], publicKey, privateKey);
+           getPrivateKey(p, q, arr[i], publicKey, privateKey);
 
            outputPrivateKey(privateKey, file);
            fprintf(file, "\n");

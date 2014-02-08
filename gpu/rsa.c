@@ -42,8 +42,7 @@ void getKeysWithPrimes(mpz_t p, mpz_t q, mpz_t publicKey, mpz_t privateKey) {
   //set privateKey
   modExponentMPZ(publicKey, neg_one, n, privateKey);
   mpz_clear(neg_one);
-  mpz_clear(p);
-  mpz_clear(q);
+
 }
 
 void computeN(mpz_t p, mpz_t q, mpz_t n) {
@@ -88,9 +87,7 @@ void printPlaintext(mpz_t plaintext) {
    printf("%s\n", buffer);
 }
 
-void getPrivateKey(mpz_t p, mpz_t modulii, mpz_t publicKey, mpz_t privateKey) {
-  mpz_t q;
-  mpz_init(q);
+void getPrivateKey(mpz_t p, mpz_t q, mpz_t modulii, mpz_t publicKey, mpz_t privateKey) {
   
   mpz_cdiv_q(q, modulii, p);
   //q is now other prime
