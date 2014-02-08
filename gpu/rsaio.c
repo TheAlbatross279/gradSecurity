@@ -56,9 +56,9 @@ void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr) {
               //if it's not 1, then output
               if (mpz_cmp_ui(gcd, 1) != 0) {
                 //store outputs
-                num_found = removeDup(output_arr, arr[key_i_ndx], num_found);
+                num_found = removeDups(output_arr, arr[key_i_ndx], num_found);
 
-                num_found = removeDup(output_arr, arr[key_j_ndx], num_found);
+                num_found = removeDups(output_arr, arr[key_j_ndx], num_found);
 
                 //generate keys
                 generateKeys(gcd, arr[key_i_ndx], privateKey);

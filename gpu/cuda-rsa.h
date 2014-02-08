@@ -3,7 +3,7 @@
 
 #include "bigInt.h"
 
-#define NUM_KEYS 2
+#define NUM_KEYS 200000
 #define INT_ARRAY_SIZE 6250
 #define BASE_10 10
 
