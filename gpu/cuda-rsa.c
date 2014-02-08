@@ -52,6 +52,8 @@ int main(int argc, char **argv) {
      convertMPZtoInt(rop, key_arr[i].values);
      i++;
    }
+
+   printf("found %d keys.\n", i);
    mpz_clear(rop);
 
    fclose(keys_file);

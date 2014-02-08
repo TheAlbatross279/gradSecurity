@@ -8,4 +8,4 @@ void totient(mpz_t prime1, mpz_t prime2, mpz_t n);
 void modExponentMPZ(mpz_t base, mpz_t exp, mpz_t mod, mpz_t result);
 void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr);
 void outputPrivateKey(mpz_t privateKey, FILE *file);
-void generateKeys(mpz_t modulii1, mpz_t modulii2, mpz_t privateKey);
+void generateKeys(mpz_t gcd, mpz_t modulii, mpz_t privateKey);

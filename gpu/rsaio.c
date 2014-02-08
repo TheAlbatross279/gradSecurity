@@ -16,25 +16,58 @@ void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr) {
   //read in keys
   FILE *keys_file = fopen("keys.txt", "r");
   int i = 0, j = 0;
-
-  int k, key_ndx, byte_ndx;
-  char mask = 1;
+  mpz_t gcd;
+  mpz_init(gcd);
+  uint32_t cur_int;
+  int m, k, key_i_ndx, key_j_ndx;
+  char mask_i= 1, mask_j = 1;
   mpz_t privateKey;
-  //go through array and get pairs
-
-  //for i, j = i+1, if index != 0, compute gcd if > 1, then compute private key 
 
   for (i=0; i < byte_array_size; i++) {
     //check if array is 1
-    int byte = bit_arr[i];
-    for (k=0; k < BITS_PER_INT; k++) {
-      for (j=i+1; j < byte_array_size-2; i++) {
-      
+    cur_int = bit_arr[i];
+    
+    //go through all bytes
+    //not i+1 because we have to visit all other bits in this byte
+    for (j=i; j < byte_array_size-2; i++) {
+      //go through every bit
+      for (m = 0; m < BITS_PER_INT-1; m++) {
+        //mask off bit for i
+        mask_i = 1 << m;
+        if (cur_int & mask_i) {
+          //if we are comparing the same byte, set the first index 
+          //to be one greater than the index of i
+          if (i == j) {
+            k = m+1;
+          } else { // otherwise start at first bit
+            k = 0;
+          }
+          for (; k < BITS_PER_INT; k++) {
+            //mask off bit for j
+            mask_j = 1 << k;
+            if (bit_arr[j] & mask_j) {
+              //get key indecies
+              key_i_ndx = bit_arr[i] * BITS_PER_INT + m;
+              key_j_ndx = bit_arr[j] * BITS_PER_INT + k;
+              //compute gcd
+              mpz_gcd (gcd, arr[key_j_ndx], arr[key_i_ndx]);
+              //if it's not 1, then output
+              if (mpz_cmp_ui(gcd, 1) != 0) {
+                //generate keys
+                generateKeys(gcd, arr[key_i_ndx], privateKey);
+                //output keys
+                outputPrivateKey(privateKey, outfile);
+                fprintf(outfile, "\n");
+              }
+            }
+          }
+        }
       }
     }
   }
+}
 
-  for (i=0; i < byte_array_size; i++) {
+/*  for (i=0; i < byte_array_size; i++) {
     for (j=i+1; j < byte_array_size; j++) {
       //index is i*NUM_KEYS + j -- index of byte
       byte_ndx = i*byte_array_size + j;
@@ -51,24 +84,19 @@ void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr) {
         }
       }
     }
-  }
-}
+    }*/
+
 
 void outputPrivateKey(mpz_t privateKey, FILE *file) {
   mpz_out_str(file, 10, privateKey);
 }
 
-void generateKeys(mpz_t modulii1, mpz_t modulii2, mpz_t privateKey) {
-  //comput gcd
-  mpz_t gcd;
-  mpz_init(gcd);
-  mpz_gcd (gcd, modulii1, modulii2);
-
+void generateKeys(mpz_t gcd, mpz_t modulii, mpz_t privateKey) {
   //set public key
   mpz_t publicKey;
   mpz_init(publicKey);
   
-  getPrivateKey(gcd, modulii1, publicKey, privateKey);
+  getPrivateKey(gcd, modulii, publicKey, privateKey);
   
 }
 
