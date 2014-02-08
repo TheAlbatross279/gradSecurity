@@ -4,9 +4,10 @@
  * 
  * Cuda-rsa code licensed from https://github.com/dmatlack/cuda-rsa
  */
-#include "rsaio.h"
 //#include "/home/clupo/gmp/mpz.h"
 #include <gmp.h>
+#include <stdint.h>
+#include "rsaio.h"
 #include "cuda-rsa.h"
 #define NUM_KEYS 200000
 

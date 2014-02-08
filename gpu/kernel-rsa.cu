@@ -6,7 +6,6 @@
  */
 
 #include <stdio.h>
-#include "./cuda-rsa-master/src/mpz/mpz.h"
 
 #define ROW_SIZE 8
 #define KEYS_PER_KERNEL 64
@@ -26,20 +25,38 @@ static void HandleError(cudaError_t err, const char *file, int line ) {
 #define HANDLE_ERROR( err ) (HandleError( err, __FILE__, __LINE__ ))
 
 
-/*Device function that returns zero if the int passed is zero and 1 if
-  the int passed is nonzero*/
-__device__ int parallelNonZero(int *x) {
-   if (__any(x[threadIdx.x]))
-      return 1;
-   return 0;
+/*This function shifts x to the right by one bit.*/
+__device__ void parallelShiftR1(uint32_t *x) {
+   unsigned int carry;
+
+   if (threadIdx.x) {
+      carry = x[threadIdx.x - 1];
+   }
+   
+   x[threadIdx.x] = (x[threadIdx.x] >> 1) | (carry << 31);
 }
 
 
+/* Returns 1 if x >= y*/
+__device__ int parallelGeq(uint32_t *x, uint32_t *y) {
+   int pos;
+
+   if (threadIdx.x == 0) {
+      pos = 31;
+   }
+
+   if (x[threadIdx.x] != y[threadIdx.x]) {
+      atomicMin(&pos, threadIdx.x);
+   }
+   return x[pos] >= y[pos];
+}
+
 /*This function doese parrallel subtraction on x and y and stores the 
   result into result.*/
-__device__ void parallelSubtract(int *result, int *x, int *y) {
-   unsigned int borrows[32];
-   unsigned int t;
+__device__ void parallelSubtract(uint32_t *result, uint32_t *x, 
+ uint32_t *y) {
+   uint32_t borrows[32];
+   uint32_t t;
 
    if (!threadIdx.x) 
       borrows[31] = 0;
@@ -49,7 +66,7 @@ __device__ void parallelSubtract(int *result, int *x, int *y) {
    if (threadIdx.x)
       borrows[threadIdx.x - 1] = (t > x[threadIdx.x]);
 
-   while (parallelNonZero(borrows)) {
+   while (__any(borrows[threadIdx.x])) {
       if (borrows[threadIdx.x]) {
          t--;
       }
@@ -62,50 +79,38 @@ __device__ void parallelSubtract(int *result, int *x, int *y) {
    result[threadIdx.x] = t;
 }
 
-__global__ void findGCD(mpz_t *arrD, int keyPos, int *bitRowD) {
-   /*Move key to be gcd'd into sharedMem*/
-   __shared__ mpz_t key;
-   mpz_init(&key);
-   mpz_set(&key, &arrD[keyPos]);
-   int toComp = blockIdx.x * blockDim.x + threadIdx.x;
-   int mask = 1 << (toComp % sizeof(int));
-   mpz_t a, b, c, quo, one;
+__global__ int gcd(uint32_t *x, uint32_t *y) {
    
-   mpz_init(&one);
-   mpz_init(&a);
-   mpz_init(&b);
-   mpz_set_ui(&one, 1);
-   mpz_init(&quo);
-   mpz_init(&c);
-   mpz_set(&a, &key);
-   mpz_set(&b, &arrD[toComp + keyPos]);
-
-   if (toComp + keyPos > keyPos && toComp + keyPos < NUM_KEYS) {
-      while(!digits_is_zero(a.digits, a.capacity)) {
-         mpz_set(&c, &a);
-         mpz_div(&quo, &a, &b, &a);
-         mpz_set(&b, &c);
+   while (__any(x[threadIdx.x])) {
+      while ((x[31] & 1) == 0) {
+         parallelShiftR1(x);
       }
-     
-      if (mpz_compare(&one, &b)) {
-      /*GCD greater than one was found*/
-         atomicOr(&bitRowD[toComp / sizeof(int)], mask);
+      while ((y[31] & 1) == 0) {
+         parallelShiftR1(y);
       }
+      if (parallelGeq(x, y)) {
+         parallelSubtract(x, x, y);
+         parallelShiftR1(x);
+      }
+      else {
+         parallelSubtract(y, y, x);
+         parallelShiftR1(y);
+      }
+      
    }
    
 }
-
 /*Sets up the GPU for the kernel call.*/
 extern "C"
-void setUpKernel(mpz_t *arr, int *bitMatrix) {
+void setUpKernel(bigInt *arr, uint32_t *bitVector) {
    /*Set up kernel to run 200000 threads*/
    dim3 dimGrid(8);
    dim3 dimBlock(8);
 
-   mpz_t *arrD;
-   int *bitRowD;
-   int count = 0, keyArrSize = sizeof(mpz_t) * NUM_KEYS;
-   //int rowSize = 80; //sizeof(char) * BYTE_ARRAY_SIZE;
+   bigInt *arrD;
+   uint32_t *bitRowD;
+
+   int count = 0;
    int byteOffset = 0;
    int ndx = 0;
    
