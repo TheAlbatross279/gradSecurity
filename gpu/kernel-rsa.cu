@@ -58,13 +58,15 @@ __device__  void parallelSubtract(uint32_t *result, uint32_t *x,
    __shared__ uint32_t borrows[32];
    uint32_t t;
 
-   if (!threadIdx.x) 
+   if (!threadIdx.x) {
       borrows[31] = 0;
+   }
    
    t = x[threadIdx.x] - y[threadIdx.x];
 
-   if (threadIdx.x)
+   if (threadIdx.x) {
       borrows[threadIdx.x - 1] = (t > x[threadIdx.x]);
+   }
 
    while (__any(borrows[threadIdx.x])) {
       if (borrows[threadIdx.x]) {

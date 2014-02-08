@@ -10,7 +10,4 @@
 
 void setUpKernel(bigInt *arr, int *bitMatrix);
 
-bigInt testKernel(bigInt x);
-
-
 #endif 

@@ -55,16 +55,6 @@ int main(int argc, char **argv) {
      i++;
    }
 
-   printf("found %d keys.\n", i);
-   mpz_clear(rop);
-
-   printf("launching kernel\n");
-   bigInt res = testKernel(key_arr[0]);
-   printf("Back from kernel\n");
-
-   mpz_t newRes;
-   mpz_init(newRes);
-   convertIntToMPZ(res.values, newRes);
 
    if (!mpz_cmp(newRes, arr[1]))
       printf("Success!\n");
