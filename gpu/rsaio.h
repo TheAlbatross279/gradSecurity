@@ -9,3 +9,4 @@ void modExponentMPZ(mpz_t base, mpz_t exp, mpz_t mod, mpz_t result);
 void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr);
 void outputPrivateKey(mpz_t privateKey, FILE *file);
 void generateKeys(mpz_t gcd, mpz_t modulii, mpz_t privateKey);
+int removeDups(mpz_t *output_arr, mpz_t insert, int num_found);
