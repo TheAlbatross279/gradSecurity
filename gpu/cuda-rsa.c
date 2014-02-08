@@ -22,7 +22,6 @@ int main(int argc, char **argv) {
    FILE *out_file = fopen("outfile.txt", "w");
    
    //read file
-
    int i = 0;
    mpz_t *arr = (mpz_t *)calloc(sizeof(mpz_t), NUM_KEYS);
    if (!arr) {

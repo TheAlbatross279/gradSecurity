@@ -24,6 +24,16 @@ void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr) {
   //for i, j = i+1, if index != 0, compute gcd if > 1, then compute private key 
 
   for (i=0; i < byte_array_size; i++) {
+    //check if array is 1
+    int byte = bit_arr[i];
+    for (k=0; k < BITS_PER_INT; k++) {
+      for (j=i+1; j < byte_array_size-2; i++) {
+      
+      }
+    }
+  }
+
+  for (i=0; i < byte_array_size; i++) {
     for (j=i+1; j < byte_array_size; j++) {
       //index is i*NUM_KEYS + j -- index of byte
       byte_ndx = i*byte_array_size + j;
