@@ -4,7 +4,7 @@
 #define GMP
 #include <gmp.h>
 #endif
-
+#include <stdint.h>
 
 typedef struct {
    uint32_t values[32];

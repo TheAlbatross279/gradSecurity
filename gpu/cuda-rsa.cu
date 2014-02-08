@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
   //read in keys
 
 //   printf("Keys:\n");
-   FILE *keys_file = fopen("keys.txt", "r");
+   FILE *keys_file = fopen("test.txt", "r");
    FILE *out_file = fopen("outfile.txt", "w");
    
    //read file
@@ -49,7 +49,6 @@ int main(int argc, char **argv) {
      }
      mpz_init(arr[i]);
      mpz_set(arr[i], rop);
-     mpz_set(temp2, rop);
      convertMPZtoInt(rop, key_arr[i].values);
      //testing mpz
 
@@ -58,6 +57,17 @@ int main(int argc, char **argv) {
 
    printf("found %d keys.\n", i);
    mpz_clear(rop);
+
+   printf("launching kernel\n");
+   bigInt res = testKernel(key_arr[0]);
+   printf("Back from kernel\n");
+
+   mpz_t newRes;
+   mpz_init(newRes);
+   convertIntToMPZ(res.values, newRes);
+
+   if (!mpz_cmp(newRes, arr[1]))
+      printf("Success!\n");
 
    fclose(keys_file);
    printf("done.\n");
