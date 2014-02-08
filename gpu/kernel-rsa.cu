@@ -26,7 +26,7 @@ static void HandleError(cudaError_t err, const char *file, int line ) {
 
 
 /*This function shifts x to the right by one bit.*/
-__global__ void parallelShiftR1(uint32_t *x) {
+__device__ void parallelShiftR1(uint32_t *x) {
    unsigned int carry;
 
    if (threadIdx.x) {
@@ -81,7 +81,7 @@ __device__  void parallelSubtract(uint32_t *result, uint32_t *x,
 
 __device__ int gcd(uint32_t *x, uint32_t *y) {
    
-   /*while (__any(x[threadIdx.x])) {
+   while (__any(x[threadIdx.x])) {
       while ((x[31] & 1) == 0) {
          parallelShiftR1(x);
       }
@@ -97,32 +97,24 @@ __device__ int gcd(uint32_t *x, uint32_t *y) {
          parallelShiftR1(y);
       }  
    }
-   parallelShiftR1(y);*/
+   parallelShiftR1(y);
    return __any(y[threadIdx.x]);
 }
 
-
-bigInt testKernel(bigInt x) {
-   dim3 dimGrid(1);
-   dim3 dimBlock(32);
-
-   bigInt *xD;
-   bigInt result;
-   int *rD;
-
-   HANDLE_ERROR(cudaMalloc(&xD, sizeof(bigInt)));     
-
-   HANDLE_ERROR(cudaMemcpy(xD, &x, sizeof(bigInt), cudaMemcpyHostToDevice));
+__global__ void doGCD(bigInt *keys, int toComp, int start, 
+ uint32_t *vector) {
+   bigInt x, y;
    
-   parallelShiftR1<<<dimGrid, dimBlock>>>(xD->values);
-
-   HANDLE_ERROR(cudaMemcpy(&result, xD, sizeof(bigInt), 
-    cudaMemcpyDeviceToHost));
-
-   cudaFree(xD);
-
-   return result;
+   if (start + blockIdx.x < NUM_KEYS) {
+      x = keys[toComp];
+      y = keys[start + blockIdx.x];
+      if (gcd(x.values, y.values)) {
+         atomicOr(vector + ((blockIdx.x + start) / 32), 1 << 
+          (blockIdx.x % 32));
+      }
+   }
 }
+
 /*Sets up the GPU for the kernel call.*/
 extern "C"
 void setUpKernel(bigInt *arr, uint32_t *bitVector) {
@@ -130,35 +122,28 @@ void setUpKernel(bigInt *arr, uint32_t *bitVector) {
    dim3 dimBlock(BLOCK_SIZE);
 
    bigInt *arrD;
-   uint32_t *bitRowD;
+   uint32_t *bitVectorD;
    
-   int count = 0, ndx = 0, byteOffset = 0;
-   int keyArrSize = sizeof(bigInt) * NUM_KEYS;   
+   int count = 1, ndx = 0;
+   int keyArrSize = sizeof(bigInt) * NUM_KEYS; 
+   int bitVecSize = sizeof(uint32_t) * INT_ARRAY_SIZE;  
 
    /*Allocate space on device for bitMatrix, and keys*/
-   HANDLE_ERROR(cudaMalloc(&arrD, sizeof(bigInt) * NUM_KEYS));
-   HANDLE_ERROR(cudaMalloc(&bitRowD, sizeof(uint32_t) * INT_ARRAY_SIZE));
+   HANDLE_ERROR(cudaMalloc(&arrD, keyArrSize));
+   HANDLE_ERROR(cudaMalloc(&bitVectorD, bitVecSize));
 
    /*Copy keys onto device*/
    HANDLE_ERROR(cudaMemcpy(arrD, arr, keyArrSize, cudaMemcpyHostToDevice));
 
-   while(ndx < NUM_KEYS) {
-      /*Clear the bit vector row*/
-      //HANDLE_ERROR(cudaMemset(bitRowD, 0, ROW_SIZE));
-
-      /*Launch Kernel*/
-      printf("launching kernel\n");
-      //findGCD<<<dimGrid, dimBlock>>>(arrD, ndx, bitRowD);
-      printf("back from kernel\n");
-      /*Copy computed bit vector into bit matrix*/
-      //HANDLE_ERROR(cudaMemcpy(bitMatrix + byteOffset, bitRowD, ROW_SIZE, 
-       //cudaMemcpyDeviceToHost));
-      byteOffset += 2;
-      //count += KEYS_PER_KERNEL;
-      if (count > NUM_KEYS) {
-         count = 0; 
+   while(ndx < NUM_KEYS - 1) {
+      doGCD<<<dimGrid, dimBlock>>>(arrD, ndx, count, bitVectorD);
+      if (count += GRID_SIZE > NUM_KEYS) {
          ndx++;
+         count = ndx + 1;
       }
    }
+
+   HANDLE_ERROR(cudaMemcpy(bitVector, bitVectorD, bitVecSize, 
+    cudaMemcpyDeviceToHost)); 
 }
 
