@@ -14,7 +14,7 @@
 
 void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr) {
   //read in keys
-  FILE *keys_file = fopen("keys.txt", "r");
+  FILE *badkeys_file = fopen("200k-badkeys.txt", "r");
   int i = 0, j = 0;
   mpz_t gcd;
   mpz_init(gcd);
@@ -23,6 +23,8 @@ void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr) {
   char mask_i= 1, mask_j = 1;
   mpz_t privateKey;
 
+  mpz_t output_arr[200];
+  int num_found = 0;
   for (i=0; i < byte_array_size; i++) {
     //check if array is 1
     cur_int = bit_arr[i];
@@ -53,8 +55,14 @@ void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr) {
               mpz_gcd (gcd, arr[key_j_ndx], arr[key_i_ndx]);
               //if it's not 1, then output
               if (mpz_cmp_ui(gcd, 1) != 0) {
+                //store outputs
+                num_found = removeDup(output_arr, arr[key_i_ndx], num_found);
+
+                num_found = removeDup(output_arr, arr[key_j_ndx], num_found);
+
                 //generate keys
                 generateKeys(gcd, arr[key_i_ndx], privateKey);
+             
                 //output keys
                 outputPrivateKey(privateKey, outfile);
                 fprintf(outfile, "\n");
@@ -65,6 +73,26 @@ void outputKeys(int *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr) {
       }
     }
   }
+  for (i=0; i < num_found; i++) {
+    outputPrivateKey(output_arr[i], badkeys_file);
+  }
+
+  fclose(badkeys_file);
+}
+
+int removeDups(mpz_t *output_arr, mpz_t insert, int num_found) {
+  int i, count = 0;
+  int found = 0;
+  for (i=0; i < num_found; i++) {
+    if (mpz_cmp(output_arr[i], insert) == 0) {
+      found = 1;
+    }
+  }
+  if (!found) {
+    mpz_set(output_arr[num_found++], insert);
+  }
+  return num_found;
+
 }
 
 /*  for (i=0; i < byte_array_size; i++) {
