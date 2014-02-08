@@ -26,7 +26,7 @@ static void HandleError(cudaError_t err, const char *file, int line ) {
 
 
 /*This function shifts x to the right by one bit.*/
-__device__ void parallelShiftR1(uint32_t *x) {
+__global__ void parallelShiftR1(uint32_t *x) {
    unsigned int carry;
 
    if (threadIdx.x) {
@@ -53,9 +53,9 @@ __device__ int parallelGeq(uint32_t *x, uint32_t *y) {
 
 /*This function doese parrallel subtraction on x and y and stores the 
   result into result.*/
-__global__  void parallelSubtract(uint32_t *result, uint32_t *x, 
+__device__  void parallelSubtract(uint32_t *result, uint32_t *x, 
  uint32_t *y) {
-   uint32_t borrows[32];
+   __shared__ uint32_t borrows[32];
    uint32_t t;
 
    if (!threadIdx.x) 
@@ -102,28 +102,24 @@ __device__ int gcd(uint32_t *x, uint32_t *y) {
 }
 
 
-bigInt testKernel(bigInt x, bigInt y) {
+bigInt testKernel(bigInt x) {
    dim3 dimGrid(1);
    dim3 dimBlock(32);
 
-   bigInt *xD, *yD, *rD;
+   bigInt *xD;
    bigInt result;
+   int *rD;
 
    HANDLE_ERROR(cudaMalloc(&xD, sizeof(bigInt)));     
-   HANDLE_ERROR(cudaMalloc(&yD, sizeof(bigInt)));
-   HANDLE_ERROR(cudaMalloc(&rD, sizeof(bigInt)));  
 
    HANDLE_ERROR(cudaMemcpy(xD, &x, sizeof(bigInt), cudaMemcpyHostToDevice));
-   HANDLE_ERROR(cudaMemcpy(yD, &y, sizeof(bigInt), cudaMemcpyHostToDevice));
    
-   parallelSubtract<<<dimGrid, dimBlock>>>(rD->values, xD->values, yD->values);
+   parallelShiftR1<<<dimGrid, dimBlock>>>(xD->values);
 
-   HANDLE_ERROR(cudaMemcpy(&result, rD, sizeof(bigInt), 
+   HANDLE_ERROR(cudaMemcpy(&result, xD, sizeof(bigInt), 
     cudaMemcpyDeviceToHost));
 
    cudaFree(xD);
-   cudaFree(yD);
-   cudaFree(rD);
 
    return result;
 }
