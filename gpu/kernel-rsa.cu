@@ -79,16 +79,16 @@ __device__  void parallelSubtract(uint32_t *result, uint32_t *x,
    result[threadIdx.x] = t;
 }
 
-__device__ int gcd(uint32_t *x, uint32_t *y) {
+__global__ void gcd(uint32_t *x, uint32_t *y, int *res) {
 
    while (__any(x[threadIdx.x])) {
-      printf("0 while\n");
+      //printf("0 while\n");
       while ((x[31] & 1) == 0) {
-         printf("1st While\n");
+         //printf("1st While\n");
          parallelShiftR1(x);
       }
       while ((y[31] & 1) == 0) {
-         printf("2nd While\n");
+         //printf("2nd While\n");
          parallelShiftR1(y);
       }
       if (parallelGeq(x, y)) {
@@ -101,10 +101,10 @@ __device__ int gcd(uint32_t *x, uint32_t *y) {
       }  
    }
    parallelShiftR1(y);
-   return __any(y[threadIdx.x]);
+   *res = __any(y[threadIdx.x]);
 }
 
-__global__ void doGCD(bigInt *keys, int toComp, int start, 
+/*__global__ void doGCD(bigInt *keys, int toComp, int start, 
  uint32_t *vector) {
    bigInt x, y;
    printf("here\n");
@@ -117,7 +117,7 @@ __global__ void doGCD(bigInt *keys, int toComp, int start,
           (blockIdx.x % 32));
       }
    }
-}
+}*/
 
 /*Sets up the GPU for the kernel call.*/
 void setUpKernel(bigInt *arr, uint32_t *bitVector) {
@@ -127,29 +127,46 @@ void setUpKernel(bigInt *arr, uint32_t *bitVector) {
    bigInt *arrD;
    uint32_t *bitVectorD;
    
+   bigInt *xD;
+   bigInt *yD;
+   int *resD;
+   
    int count = 1, ndx = 0;
    int keyArrSize = sizeof(bigInt) * NUM_KEYS; 
    int bitVecSize = sizeof(uint32_t) * INT_ARRAY_SIZE;  
 
    /*Allocate space on device for bitMatrix, and keys*/
-   HANDLE_ERROR(cudaMalloc(&arrD, keyArrSize));
-   HANDLE_ERROR(cudaMalloc(&bitVectorD, bitVecSize));
+   //HANDLE_ERROR(cudaMalloc(&arrD, keyArrSize));
+   //HANDLE_ERROR(cudaMalloc(&bitVectorD, bitVecSize));
 
    /*Copy keys onto device*/
-   HANDLE_ERROR(cudaMemcpy(arrD, arr, keyArrSize, cudaMemcpyHostToDevice));
+   //HANDLE_ERROR(cudaMemcpy(arrD, arr, keyArrSize, cudaMemcpyHostToDevice));
 
-   while(ndx < NUM_KEYS - 1) {
+   HANDLE_ERROR(cudaMalloc(&xD, sizeof(bigInt)));
+   HANDLE_ERROR(cudaMalloc(&yD, sizeof(bigInt)));
+   HANDLE_ERROR(cudaMalloc(&resD, sizeof(int)));
+
+   HANDLE_ERROR(cudaMemcpy(xD, &arr[0], sizeof(bigInt), cudaMemcpyHostToDevice));
+   HANDLE_ERROR(cudaMemcpy(yD, &arr[1], sizeof(bigInt), cudaMemcpyHostToDevice));
+   
+
+   gcd<<<dimGrid, dimBlock>>>(xD->values, yD->values, resD);
+
+   int res;
+
+   cudaMemcpy(&res, resD, sizeof(int), cudaMemcpyDeviceToHost);
+   printf("res: %d\n", res);
+
+   /*while(ndx < NUM_KEYS - 1) {
       doGCD<<<dimGrid, dimBlock>>>(arrD, ndx, count, bitVectorD);
-      //printf("Comparing ndx %d with %d\n", ndx, count);
       count += GRID_SIZE;
       if (count > NUM_KEYS) {
-         //printf("ndx: %d, count: %d\n", ndx, count);
          ndx++;
          count = ndx + 1;
       }
-   }
+   }*/
 
-   HANDLE_ERROR(cudaMemcpy(bitVector, bitVectorD, bitVecSize, 
-    cudaMemcpyDeviceToHost)); 
+   //HANDLE_ERROR(cudaMemcpy(bitVector, bitVectorD, bitVecSize, 
+    //cudaMemcpyDeviceToHost)); 
 }
 
