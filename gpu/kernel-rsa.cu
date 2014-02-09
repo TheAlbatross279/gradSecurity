@@ -8,11 +8,9 @@
 #include <stdio.h>
 
 #define BLOCK_SIZE 32
-#define GRID_SIZE 200
+#define GRID_SIZE 1
 
-//extern "C" {
 #include "cuda-rsa.h"
-//}
 
 
 /*This macro was taken from the book CUDA by example.*/
@@ -82,12 +80,15 @@ __device__  void parallelSubtract(uint32_t *result, uint32_t *x,
 }
 
 __device__ int gcd(uint32_t *x, uint32_t *y) {
-   
+
    while (__any(x[threadIdx.x])) {
+      printf("0 while\n");
       while ((x[31] & 1) == 0) {
+         printf("1st While\n");
          parallelShiftR1(x);
       }
       while ((y[31] & 1) == 0) {
+         printf("2nd While\n");
          parallelShiftR1(y);
       }
       if (parallelGeq(x, y)) {
@@ -106,8 +107,9 @@ __device__ int gcd(uint32_t *x, uint32_t *y) {
 __global__ void doGCD(bigInt *keys, int toComp, int start, 
  uint32_t *vector) {
    bigInt x, y;
-   
+   printf("here\n");
    if (start + blockIdx.x < NUM_KEYS) {
+      printf("doGCD\n");
       x = keys[toComp];
       y = keys[start + blockIdx.x];
       if (gcd(x.values, y.values)) {
@@ -118,7 +120,6 @@ __global__ void doGCD(bigInt *keys, int toComp, int start,
 }
 
 /*Sets up the GPU for the kernel call.*/
-extern "C"
 void setUpKernel(bigInt *arr, uint32_t *bitVector) {
    dim3 dimGrid(GRID_SIZE);
    dim3 dimBlock(BLOCK_SIZE);
@@ -139,7 +140,10 @@ void setUpKernel(bigInt *arr, uint32_t *bitVector) {
 
    while(ndx < NUM_KEYS - 1) {
       doGCD<<<dimGrid, dimBlock>>>(arrD, ndx, count, bitVectorD);
-      if (count += GRID_SIZE > NUM_KEYS) {
+      //printf("Comparing ndx %d with %d\n", ndx, count);
+      count += GRID_SIZE;
+      if (count > NUM_KEYS) {
+         //printf("ndx: %d, count: %d\n", ndx, count);
          ndx++;
          count = ndx + 1;
       }

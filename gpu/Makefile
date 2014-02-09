@@ -8,7 +8,7 @@ INC= -I/home/clupo/gmp/include
 libL= -lgmp
 
 
-rsa-cuda: cuda-rsa.cu bigInt.cu kernel-rsa.cu 
+rsa-cuda: cuda-rsa.cu rsaio.cu bigInt.cu kernel-rsa.cu 
 	$(NCC) $(NVFLAGS) $(INC) -o cudaRSA $^ $(CFLAGS) $(lib) $(libL)
 
 rsa-gpu: cuda-rsa.o bigInt.o rsaio.o

@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
   //read in keys
 
 //   printf("Keys:\n");
-   FILE *keys_file = fopen("test.txt", "r");
+   FILE *keys_file = fopen("256-keys.txt", "r");
    FILE *out_file = fopen("outfile.txt", "w");
    
    //read file
@@ -56,24 +56,21 @@ int main(int argc, char **argv) {
    }
 
 
-   if (!mpz_cmp(newRes, arr[1]))
-      printf("Success!\n");
-
    fclose(keys_file);
    printf("done.\n");
 
    //create matrix for key -- calloc
-   int *bit_arr = (int *)calloc(sizeof(int), INT_ARRAY_SIZE * 
-    INT_ARRAY_SIZE);
+   uint32_t *bit_arr = (uint32_t *)calloc(sizeof(uint32_t), INT_ARRAY_SIZE);
 
   //copy key to device
-//   setUpKernel(key_arr, bit_arr);
+   setUpKernel(key_arr, bit_arr);
 
    //generate keys from each pair 
    
 
   //output priavte keys that match
-   //outputKeys(bit_arr, out_file, INT_ARRAY_SIZE, arr);
+   outputKeys(bit_arr, out_file, INT_ARRAY_SIZE, arr);
+   fclose(out_file);
    
   return 0;
 }
