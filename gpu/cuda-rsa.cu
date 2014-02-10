@@ -20,8 +20,8 @@ int main(int argc, char **argv) {
   //read in keys
 
 //   printf("Keys:\n");
-   FILE *keys_file = fopen("4096-keys.txt", "r");
-   FILE *out_file = fopen("outfile.txt", "w");
+   FILE *keys_file = fopen("256-keys.txt", "r");
+   FILE *out_file = fopen("256-outfile.txt", "w");
    
    //read file
    int i = 0;
@@ -61,16 +61,17 @@ int main(int argc, char **argv) {
 
    //create matrix for key -- calloc
    uint32_t *bit_arr = (uint32_t *)calloc(sizeof(uint32_t), INT_ARRAY_SIZE);
-
-  //copy key to device
-   setUpKernel(key_arr, bit_arr);
-
-   //generate keys from each pair 
+   printf("Calling kernel...\n");
    
+   //copy key to device
+   setUpKernel(key_arr, bit_arr);
+   printf("done.\n");
 
-  //output priavte keys that match
+   //output priavte keys that match
+   printf("Outputting results...\n");
    outputKeys(bit_arr, out_file, INT_ARRAY_SIZE, arr);
    fclose(out_file);
-   
+   printf("done.\n");
+
   return 0;
 }
