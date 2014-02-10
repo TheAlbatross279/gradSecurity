@@ -117,7 +117,7 @@ __global__ void doGCD(bigInt *keys, int toComp, int start,
       gcd(comp[blockIdx.x].values, comp2[blockIdx.x].values, &res);
       if (res) {
          if (threadIdx.x == 0) {
-            printf("FOUND A KEY at: %d, %d\n", toComp, start + blockIdx.x);
+           //printf("FOUND A KEY at: %d, %d\n", toComp, start + blockIdx.x);
             atomicOr(&vector[(blockIdx.x + start) / 32], 1 << 
              ((blockIdx.x + start) % 32));
             atomicOr(&vector[toComp / 32], 1 << (toComp % 32));
@@ -127,15 +127,13 @@ __global__ void doGCD(bigInt *keys, int toComp, int start,
 }
 
 /*Sets up the GPU for the kernel call.*/
-void setUpKernel(bigInt *arr, uint32_t *bitVector) {
+int setUpKernel(bigInt *arr, uint32_t *bitVector) {
    dim3 dimGrid(GRID_SIZE);
    dim3 dimBlock(BLOCK_SIZE);
 
    bigInt *arrD, *compD, *comp2D;
    uint32_t *bitVectorD;
 
-   int *totalCountD;
-   int totalCount = 0;
    
    int count = 1, ndx = 0;
    int keyArrSize = sizeof(bigInt) * NUM_KEYS; 
@@ -164,7 +162,7 @@ void setUpKernel(bigInt *arr, uint32_t *bitVector) {
    HANDLE_ERROR(cudaMemcpy(bitVector, bitVectorD, bitVecSize, 
     cudaMemcpyDeviceToHost));
    
-   /*uint32_t mask;
+   uint32_t mask;
    int total = 0;
    int inCount = 0;
 
@@ -173,11 +171,11 @@ void setUpKernel(bigInt *arr, uint32_t *bitVector) {
          mask = 1 << inCount;
          if (bitVector[count] & mask) {
             total++;
-            printf("key location: %d\n", (count * 32) + inCount);
+            //printf("key location: %d\n", (count * 32) + inCount);
          }
       }
    }
-   printf("total: %d\n", total);*/
-   
+   //printf("total: %d\n", total);
+   return total;
 }
 
