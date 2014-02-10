@@ -10,42 +10,78 @@
 #include "rsaio.h"
 #include "cuda-rsa.h"
 
-void outputKeys(uint32_t *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr/*, int num_bad_keys*/) {
+void outputKeys(uint32_t *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr, int num_bad_keys) {
   //read in keys
 //  FILE *badkeys_file = fopen("200k-badkeys.txt", "r");
   int i = 0, j = 0;
   mpz_t gcd;
   mpz_init(gcd);
-  uint32_t cur_int;
-  int m, k, key_i_ndx, key_j_ndx;
-  char mask_i= 1, mask_j = 1;
+//  uint32_t cur_int;
+  int m/*, k, key_i_ndx, key_j_ndx*/;
+  char mask_i/*, mask_j = 1*/;
   mpz_t privateKey;
   mpz_init(privateKey);
   
   int key_count = 0;
-  int bad_key_ndxs[num_bad_keys];
-
-  for (i=0; i < byte_array_size; i++) {
-    //check if array is 1
-    cur_int = bit_arr[i];
-
+  int bad_key_ndx[num_bad_keys];
+  printf("Checking bit vector...\n");
+  
+  for (i=0; i < INT_ARRAY_SIZE; i++) {
     //go through every bit in [i]
+     printf("int i: %d\n", i);
+     
     for (m = 0; m < BITS_PER_INT; m++) {
        //mask off bit for i
        mask_i = 1 << m;
-       if (cur_int & mask_i) {
-          bad_key_ndx[key_count++] = i+m;
-          
+       printf("%d\n", bit_arr[i] & mask_i);
+       
+       if (bit_arr[i] & mask_i) {
+          printf("i: %d, m: %d\n", i, m);
+          printf("found a bad one %d\n", (i*BITS_PER_INT) + m);
+          bad_key_ndx[key_count] = (i*BITS_PER_INT) + m;
+          key_count++;
        }
     }
   }
+  
+/*  printf("now outputting results...\n");
+  for (i=0; i < num_bad_keys; i++) {
+     for (j=i+1; j < num_bad_keys; j++) {
+        mpz_gcd (gcd, arr[bad_key_ndx[j]], arr[bad_key_ndx[i]]);
+                   
+        //if it's not 1, then output
+        if (mpz_cmp_ui(gcd, 1) != 0) {
+           printf("%d and %d are bad keys\n", bad_key_ndx[i], bad_key_ndx[j]);
+           //generate keys
+           generateKeys(gcd, arr[bad_key_ndx[i]], privateKey);
+                      
+           //output i key and private key
+           outputPrivateKey(arr[bad_key_ndx[i]], outfile);
+           fprintf(outfile, ":");
+           outputPrivateKey(privateKey, outfile);
+           fprintf(outfile, "\n");
+
+           //get j private key
+           generateKeys(gcd, arr[bad_key_ndx[j]], privateKey);
+                
+           //output j key and private key
+           outputPrivateKey(arr[bad_key_ndx[j]], outfile);
+           fprintf(outfile, ":");
+           outputPrivateKey(privateKey, outfile);
+           fprintf(outfile, "\n");
+        }
+     }
+  
+     }*/
+}
+
   
     
 
 //  mpz_t output_arr[200];
 //  int num_found = 0;
-  printf("Checking bit vector...\n");
-  
+
+/*  
   for (i=0; i < byte_array_size; i++) {
     //check if array is 1
     cur_int = bit_arr[i];
@@ -107,13 +143,13 @@ void outputKeys(uint32_t *bit_arr, FILE *outfile, int byte_array_size, mpz_t *ar
           }
        }
     }
-  }
+    }*/
 /*  for (i=0; i < num_found; i++) {
     outputPrivateKey(output_arr[i], badkeys_file);
     }*/
 
 //  fclose(badkeys_file);
-}
+
 
 int removeDups(mpz_t *output_arr, mpz_t insert, int num_found) {
   int i;

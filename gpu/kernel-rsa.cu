@@ -171,11 +171,13 @@ int setUpKernel(bigInt *arr, uint32_t *bitVector) {
          mask = 1 << inCount;
          if (bitVector[count] & mask) {
             total++;
-            //printf("key location: %d\n", (count * 32) + inCount);
+            printf("key location: %d\n", (count * 32) + inCount);
+            printf("count: %d, inCound: %d\n", count, inCount);
+            
          }
       }
    }
-   //printf("total: %d\n", total);
+   printf("total: %d\n", total);
    return total;
 }
 
