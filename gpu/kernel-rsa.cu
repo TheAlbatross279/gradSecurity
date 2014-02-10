@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #define BLOCK_SIZE 32
-#define GRID_SIZE 1
+#define GRID_SIZE 512
 
 #include "cuda-rsa.h"
 
@@ -79,16 +79,18 @@ __device__  void parallelSubtract(uint32_t *result, uint32_t *x,
    result[threadIdx.x] = t;
 }
 
-__global__ void gcd(uint32_t *x, uint32_t *y, int *res) {
+__device__ void gcd(uint32_t *x, uint32_t *y, int *res) {
+   /*__shared__ uint32_t x[32];
+   __shared__ uint32_t y[32];
 
+   x[threadIdx.x] = x1[threadIdx.x];
+   y[threadIdx.x] = y1[threadIdx.y];*/
+   
    while (__any(x[threadIdx.x])) {
-      //printf("0 while\n");
       while ((x[31] & 1) == 0) {
-         //printf("1st While\n");
          parallelShiftR1(x);
       }
       while ((y[31] & 1) == 0) {
-         //printf("2nd While\n");
          parallelShiftR1(y);
       }
       if (parallelGeq(x, y)) {
@@ -104,69 +106,91 @@ __global__ void gcd(uint32_t *x, uint32_t *y, int *res) {
    *res = __any(y[threadIdx.x]);
 }
 
-/*__global__ void doGCD(bigInt *keys, int toComp, int start, 
- uint32_t *vector) {
-   bigInt x, y;
-   printf("here\n");
+__global__ void doGCD(bigInt *keys, int toComp, int start, 
+ uint32_t *vector, bigInt *comp, bigInt *comp2) {
+   int res;
    if (start + blockIdx.x < NUM_KEYS) {
-      printf("doGCD\n");
-      x = keys[toComp];
-      y = keys[start + blockIdx.x];
-      if (gcd(x.values, y.values)) {
-         atomicOr(vector + ((blockIdx.x + start) / 32), 1 << 
-          (blockIdx.x % 32));
+      comp[blockIdx.x].values[threadIdx.x] = 
+       keys[toComp].values[threadIdx.x];
+      comp2[blockIdx.x].values[threadIdx.x] = 
+       keys[start + blockIdx.x].values[threadIdx.x];
+      gcd(comp[blockIdx.x].values, comp2[blockIdx.x].values, &res);
+      if (res) {
+         if (threadIdx.x == 0) {
+            printf("FOUND A KEY at: %d, %d\n", toComp, start + blockIdx.x);
+            atomicOr(vector + ((blockIdx.x + start) / 32), 1 << 
+             (blockIdx.x % 32));
+            atomicOr(vector + (toComp / 32), 1 << (toComp % 32));
+         }
       }
    }
-}*/
+}
 
 /*Sets up the GPU for the kernel call.*/
 void setUpKernel(bigInt *arr, uint32_t *bitVector) {
    dim3 dimGrid(GRID_SIZE);
    dim3 dimBlock(BLOCK_SIZE);
 
-   bigInt *arrD;
+   bigInt *arrD, *compD, *comp2D;
    uint32_t *bitVectorD;
-   
-   bigInt *xD;
-   bigInt *yD;
-   int *resD;
+
+   int *totalCountD;
+   int totalCount = 0;
    
    int count = 1, ndx = 0;
    int keyArrSize = sizeof(bigInt) * NUM_KEYS; 
    int bitVecSize = sizeof(uint32_t) * INT_ARRAY_SIZE;  
-
+   
    /*Allocate space on device for bitMatrix, and keys*/
-   //HANDLE_ERROR(cudaMalloc(&arrD, keyArrSize));
-   //HANDLE_ERROR(cudaMalloc(&bitVectorD, bitVecSize));
-
-   /*Copy keys onto device*/
-   //HANDLE_ERROR(cudaMemcpy(arrD, arr, keyArrSize, cudaMemcpyHostToDevice));
-
+   HANDLE_ERROR(cudaMalloc(&arrD, keyArrSize));
+   HANDLE_ERROR(cudaMalloc(&bitVectorD, bitVecSize)); 
+   HANDLE_ERROR(cudaMalloc(&compD, sizeof(bigInt) * GRID_SIZE));
+   HANDLE_ERROR(cudaMalloc(&comp2D, sizeof(bigInt) * GRID_SIZE));
+   HANDLE_ERROR(cudaMemset(bitVectorD, 0, bitVecSize));
+   //TEST CODE
+   /*bigInt *xD, *yD;
+   int *resD;
+   int res;
    HANDLE_ERROR(cudaMalloc(&xD, sizeof(bigInt)));
    HANDLE_ERROR(cudaMalloc(&yD, sizeof(bigInt)));
    HANDLE_ERROR(cudaMalloc(&resD, sizeof(int)));
-
    HANDLE_ERROR(cudaMemcpy(xD, &arr[0], sizeof(bigInt), cudaMemcpyHostToDevice));
    HANDLE_ERROR(cudaMemcpy(yD, &arr[1], sizeof(bigInt), cudaMemcpyHostToDevice));
-   
-
    gcd<<<dimGrid, dimBlock>>>(xD->values, yD->values, resD);
+   HANDLE_ERROR(cudaMemcpy(&res, resD, sizeof(int), cudaMemcpyDeviceToHost));
+   printf("result: %d\n",  res);
+   */
+   //END TEST
+   /*Copy keys onto device*/
+   HANDLE_ERROR(cudaMemcpy(arrD, arr, keyArrSize, cudaMemcpyHostToDevice));
 
-   int res;
-
-   cudaMemcpy(&res, resD, sizeof(int), cudaMemcpyDeviceToHost);
-   printf("res: %d\n", res);
-
-   /*while(ndx < NUM_KEYS - 1) {
-      doGCD<<<dimGrid, dimBlock>>>(arrD, ndx, count, bitVectorD);
+   while(ndx < NUM_KEYS - 1) {
+      //printf("ndx: %d, start: %d\n", ndx, count);
+      doGCD<<<dimGrid, dimBlock>>>(arrD, ndx, count, bitVectorD, compD, comp2D);
       count += GRID_SIZE;
-      if (count > NUM_KEYS) {
+      if (count >= NUM_KEYS) {
          ndx++;
          count = ndx + 1;
       }
-   }*/
+   }
 
-   //HANDLE_ERROR(cudaMemcpy(bitVector, bitVectorD, bitVecSize, 
-    //cudaMemcpyDeviceToHost)); 
+   HANDLE_ERROR(cudaMemcpy(bitVector, bitVectorD, bitVecSize, 
+    cudaMemcpyDeviceToHost));
+   
+   uint32_t mask;
+   int total = 0;
+   int inCount = 0;
+
+   for (count = 0; count < INT_ARRAY_SIZE; count++) {
+      for (inCount = 0; inCount < 32; inCount++) {
+         mask = 1 << inCount;
+         if (bitVector[count] & mask) {
+            total++;
+            printf("key location: %d\n", (count * 32) + inCount + 1);
+         }
+      }
+   }
+   printf("total: %d\n", total);
+   exit(1);
 }
 
