@@ -54,16 +54,27 @@ void outputKeys(uint32_t *bit_arr, FILE *outfile, int byte_array_size, mpz_t *ar
               //if it's not 1, then output
               if (mpz_cmp_ui(gcd, 1) != 0) {
                 //store outputs
-                num_found = removeDups(output_arr, arr[key_i_ndx], num_found);
-
-                num_found = removeDups(output_arr, arr[key_j_ndx], num_found);
+                //num_found = removeDups(output_arr, arr[key_i_ndx], num_found);
+                //num_found = removeDups(output_arr, arr[key_j_ndx], num_found);
 
                 //generate keys
                 generateKeys(gcd, arr[key_i_ndx], privateKey);
              
-                //output keys
+                //output i key and private key
+                outputPrivateKey(arr[key_i_ndx], outfile);
+                fprintf(outfile, ":");
                 outputPrivateKey(privateKey, outfile);
                 fprintf(outfile, "\n");
+
+                //get j private key
+                generateKeys(gcd, arr[key_j_ndx], privateKey);
+                
+                //output j key and private key
+                outputPrivateKey(arr[key_j_ndx], outfile);
+                fprintf(outfile, ":");
+                outputPrivateKey(privateKey, outfile);
+                fprintf(outfile, "\n");
+                
               }
             }
           }
@@ -71,9 +82,9 @@ void outputKeys(uint32_t *bit_arr, FILE *outfile, int byte_array_size, mpz_t *ar
       }
     }
   }
-  for (i=0; i < num_found; i++) {
+/*  for (i=0; i < num_found; i++) {
     outputPrivateKey(output_arr[i], badkeys_file);
-  }
+    }*/
 
   fclose(badkeys_file);
 }
