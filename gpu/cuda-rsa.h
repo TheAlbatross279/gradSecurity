@@ -3,11 +3,11 @@
 
 #include "bigInt.h"
 
-#define NUM_KEYS 4096
-#define INT_ARRAY_SIZE 128
+#define NUM_KEYS 256
+#define INT_ARRAY_SIZE 8
 #define BASE_10 10
 
 
-void setUpKernel(bigInt *arr, uint32_t *bitMatrix);
+int setUpKernel(bigInt *arr, uint32_t *bitMatrix, int **indexs);
 
 #endif 
