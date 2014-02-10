@@ -8,6 +8,6 @@
 #define BASE_10 10
 
 
-int *setUpKernel(bigInt *arr, uint32_t *bitMatrix);
+int setUpKernel(bigInt *arr, uint32_t *bitMatrix, int **indexs);
 
 #endif 
