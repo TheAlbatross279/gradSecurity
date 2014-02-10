@@ -189,16 +189,16 @@ int setUpKernel(bigInt *arr, uint32_t *bitVector, int **indexs) {
          mask = 1 << inCount;
          if (bitVector[count] & mask) {
             //printf("key location: %d\n", (count * 32) + inCount);
-            *indexs[pairs++] = (count * 32) + inCount;
+            indexs[0][pairs++] = (count * 32) + inCount;
          }
       }
    }
 
-   /*for (count = 0; count < total; count++) {
-      printf("count: %d ndx: %d\n", count, *indexs[count]);
-   }*/
+   for (count = 0; count < total; count++) {
+      printf("count: %d ndx: %d\n", count, indexs[0][count]);
+   }
  
-   //printf("total: %d\n", total);
+   printf("total: %d\n", total);
    return total;
 }
 
