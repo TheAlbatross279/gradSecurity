@@ -20,8 +20,8 @@ int main(int argc, char **argv) {
   //read in keys
 
 //   printf("Keys:\n");
-   FILE *keys_file = fopen("256-keys.txt", "r");
-   FILE *out_file = fopen("256-outfile.txt", "w");
+   FILE *keys_file = fopen("4096-keys.txt", "r");
+   FILE *out_file = fopen("4096-outfile.txt", "w");
    
    //read file
    int i = 0;

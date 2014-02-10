@@ -11,39 +11,12 @@
 #include "cuda-rsa.h"
 
 void outputKeys(int *bad_keys, FILE *outfile, mpz_t *arr, int num_bad_keys) {
-  //read in keys
-//  FILE *badkeys_file = fopen("200k-badkeys.txt", "r");
   int i = 0, j = 0;
   mpz_t gcd;
   mpz_init(gcd);
-//  uint32_t cur_int;
-//  int m/*, k, key_i_ndx, key_j_ndx*/;
-//  char mask_i/*, mask_j = 1*/;
+
   mpz_t privateKey;
   mpz_init(privateKey);
-  
-/*  int key_count = 0;
-  int bad_key_ndx[num_bad_keys];
-  printf("Checking bit vector...\n");
-  
-  for (i=0; i < INT_ARRAY_SIZE; i++) {
-    //go through every bit in [i]
-     printf("int i: %d\n", i);
-     
-    for (m = 0; m < BITS_PER_INT; m++) {
-       //mask off bit for i
-       mask_i = 1 << m;
-       printf("%d\n", bit_arr[i] & mask_i);
-       
-       if (bit_arr[i] & mask_i) {
-          printf("i: %d, m: %d\n", i, m);
-          printf("found a bad one %d\n", (i*BITS_PER_INT) + m);
-          bad_key_ndx[key_count] = (i*BITS_PER_INT) + m;
-          key_count++;
-       }
-    }
-    }*/
-  
 
   for (i=0; i < num_bad_keys; i++) {
      for (j=i+1; j < num_bad_keys; j++) {
@@ -51,7 +24,7 @@ void outputKeys(int *bad_keys, FILE *outfile, mpz_t *arr, int num_bad_keys) {
                    
         //if it's not 1, then output
         if (mpz_cmp_ui(gcd, 1) != 0) {
-           printf("%d and %d are bad keys\n", bad_keys[i], bad_keys[j]);
+//           printf("%d and %d are bad keys\n", bad_keys[i], bad_keys[j]);
            //generate keys
            generateKeys(gcd, arr[bad_keys[i]], privateKey);
                       
@@ -74,98 +47,7 @@ void outputKeys(int *bad_keys, FILE *outfile, mpz_t *arr, int num_bad_keys) {
   
   }
 }
-
-  
     
-
-//  mpz_t output_arr[200];
-//  int num_found = 0;
-
-/*  
-  for (i=0; i < byte_array_size; i++) {
-    //check if array is 1
-    cur_int = bit_arr[i];
-
-    //go through every bit in [i]
-    for (m = 0; m < BITS_PER_INT; m++) {
-       //mask off bit for i
-       mask_i = 1 << m;
-       if (cur_int & mask_i) {
-          printf("Checking i byte\n");
-    
-          //go through all bytes
-          //not i+1 because we have to visit all other bits in this byte
-          for (j=i; j < byte_array_size; i++) {
-             //if we are comparing the same byte, set the first index 
-             //to be one greater than the index of i
-             if (i == j) {
-                k = m+1;
-             } else { // otherwise start at first bit
-                k = 0;
-             }             
-             for (; k < BITS_PER_INT; k++) {
-                //mask off bit for j
-                mask_j = 1 << k;
-                if (bit_arr[j] & mask_j) {
-                   printf("Checking j byte\n");
-                   //get key indecies
-                   key_i_ndx = i * BITS_PER_INT + m;
-                   key_j_ndx = j * BITS_PER_INT + k;
-                   printf("i: %d, j: %d, m: %d, k: %d\n", i, j, m, k);
-                   printf("key_i: %d key_j: %d\n", key_i_ndx, key_j_ndx);
-                   
-                   //compute gcd
-                   mpz_gcd (gcd, arr[key_j_ndx], arr[key_i_ndx]);
-                   
-                   //if it's not 1, then output
-                   if (mpz_cmp_ui(gcd, 1) != 0) {
-                      printf("%d and %d are bad keys\n", key_i_ndx, key_j_ndx);
-                      //generate keys
-                      generateKeys(gcd, arr[key_i_ndx], privateKey);
-                      
-                      //output i key and private key
-                      outputPrivateKey(arr[key_i_ndx], outfile);
-                      fprintf(outfile, ":");
-                      outputPrivateKey(privateKey, outfile);
-                      fprintf(outfile, "\n");
-
-                      //get j private key
-                      generateKeys(gcd, arr[key_j_ndx], privateKey);
-                
-                      //output j key and private key
-                      outputPrivateKey(arr[key_j_ndx], outfile);
-                      fprintf(outfile, ":");
-                      outputPrivateKey(privateKey, outfile);
-                      fprintf(outfile, "\n");
-                   }
-                }
-             }
-          }
-       }
-    }
-    }*/
-/*  for (i=0; i < num_found; i++) {
-    outputPrivateKey(output_arr[i], badkeys_file);
-    }*/
-
-//  fclose(badkeys_file);
-
-
-int removeDups(mpz_t *output_arr, mpz_t insert, int num_found) {
-  int i;
-  int found = 0;
-  for (i=0; i < num_found; i++) {
-    if (mpz_cmp(output_arr[i], insert) == 0) {
-      found = 1;
-    }
-  }
-  if (!found) {
-    mpz_set(output_arr[num_found++], insert);
-  }
-  return num_found;
-
-}
-
 
 void outputPrivateKey(mpz_t privateKey, FILE *file) {
   mpz_out_str(file, 10, privateKey);
