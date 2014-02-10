@@ -10,7 +10,7 @@
 #include "rsaio.h"
 #include "cuda-rsa.h"
 
-void outputKeys(uint32_t *bit_arr, FILE *outfile, int byte_array_size, mpz_t *arr, int num_bad_keys) {
+void outputKeys(int *bad_keys, FILE *outfile, mpz_t *arr, int num_bad_keys) {
   //read in keys
 //  FILE *badkeys_file = fopen("200k-badkeys.txt", "r");
   int i = 0, j = 0;
@@ -22,7 +22,7 @@ void outputKeys(uint32_t *bit_arr, FILE *outfile, int byte_array_size, mpz_t *ar
   mpz_t privateKey;
   mpz_init(privateKey);
   
-  int key_count = 0;
+/*  int key_count = 0;
   int bad_key_ndx[num_bad_keys];
   printf("Checking bit vector...\n");
   
@@ -42,9 +42,9 @@ void outputKeys(uint32_t *bit_arr, FILE *outfile, int byte_array_size, mpz_t *ar
           key_count++;
        }
     }
-  }
+    }*/
   
-/*  printf("now outputting results...\n");
+
   for (i=0; i < num_bad_keys; i++) {
      for (j=i+1; j < num_bad_keys; j++) {
         mpz_gcd (gcd, arr[bad_key_ndx[j]], arr[bad_key_ndx[i]]);
@@ -72,7 +72,7 @@ void outputKeys(uint32_t *bit_arr, FILE *outfile, int byte_array_size, mpz_t *ar
         }
      }
   
-     }*/
+  }
 }
 
   
