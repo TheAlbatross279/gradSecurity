@@ -64,13 +64,13 @@ int main(int argc, char **argv) {
    printf("Calling kernel...\n");
    
    //copy key to device
-   int *indexs = NULL;
-   int num_bad = setUpKernel(key_arr, bit_arr, &indexs);
+   int *indexes = NULL;
+   int num_bad = setUpKernel(key_arr, bit_arr, &indexes);
    printf("done.\n");
    
    //output priavte keys that match
    printf("Outputting results...\n");
-   outputKeys(bit_arr, out_file, INT_ARRAY_SIZE, arr, num_bad);
+   outputKeys(indexes, out_file, arr, num_bad);
    fclose(out_file);
    printf("done.\n");
 

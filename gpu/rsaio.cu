@@ -17,8 +17,8 @@ void outputKeys(int *bad_keys, FILE *outfile, mpz_t *arr, int num_bad_keys) {
   mpz_t gcd;
   mpz_init(gcd);
 //  uint32_t cur_int;
-  int m/*, k, key_i_ndx, key_j_ndx*/;
-  char mask_i/*, mask_j = 1*/;
+//  int m/*, k, key_i_ndx, key_j_ndx*/;
+//  char mask_i/*, mask_j = 1*/;
   mpz_t privateKey;
   mpz_init(privateKey);
   
@@ -47,25 +47,25 @@ void outputKeys(int *bad_keys, FILE *outfile, mpz_t *arr, int num_bad_keys) {
 
   for (i=0; i < num_bad_keys; i++) {
      for (j=i+1; j < num_bad_keys; j++) {
-        mpz_gcd (gcd, arr[bad_key_ndx[j]], arr[bad_key_ndx[i]]);
+        mpz_gcd (gcd, arr[bad_keys[j]], arr[bad_keys[i]]);
                    
         //if it's not 1, then output
         if (mpz_cmp_ui(gcd, 1) != 0) {
-           printf("%d and %d are bad keys\n", bad_key_ndx[i], bad_key_ndx[j]);
+           printf("%d and %d are bad keys\n", bad_keys[i], bad_keys[j]);
            //generate keys
-           generateKeys(gcd, arr[bad_key_ndx[i]], privateKey);
+           generateKeys(gcd, arr[bad_keys[i]], privateKey);
                       
            //output i key and private key
-           outputPrivateKey(arr[bad_key_ndx[i]], outfile);
+           outputPrivateKey(arr[bad_keys[i]], outfile);
            fprintf(outfile, ":");
            outputPrivateKey(privateKey, outfile);
            fprintf(outfile, "\n");
 
            //get j private key
-           generateKeys(gcd, arr[bad_key_ndx[j]], privateKey);
+           generateKeys(gcd, arr[bad_keys[j]], privateKey);
                 
            //output j key and private key
-           outputPrivateKey(arr[bad_key_ndx[j]], outfile);
+           outputPrivateKey(arr[bad_keys[j]], outfile);
            fprintf(outfile, ":");
            outputPrivateKey(privateKey, outfile);
            fprintf(outfile, "\n");
