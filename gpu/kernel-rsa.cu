@@ -127,7 +127,7 @@ __global__ void doGCD(bigInt *keys, int toComp, int start,
 }
 
 /*Sets up the GPU for the kernel call.*/
-int *setUpKernel(bigInt *arr, uint32_t *bitVector) {
+int setUpKernel(bigInt *arr, uint32_t *bitVector, int **indexs) {
    dim3 dimGrid(GRID_SIZE);
    dim3 dimBlock(BLOCK_SIZE);
 
@@ -177,7 +177,7 @@ int *setUpKernel(bigInt *arr, uint32_t *bitVector) {
          }
       }
    }
-   int *indexs = (int *)calloc(total, sizeof(int));
+   *indexs = (int *)calloc(total, sizeof(int));
    if (!indexs) {
       perror("calloc");
       exit(1);
@@ -189,16 +189,16 @@ int *setUpKernel(bigInt *arr, uint32_t *bitVector) {
          mask = 1 << inCount;
          if (bitVector[count] & mask) {
             //printf("key location: %d\n", (count * 32) + inCount);
-            indexs[pairs++] = (count * 32) + inCount;
+            *indexs[pairs++] = (count * 32) + inCount;
          }
       }
    }
 
    /*for (count = 0; count < total; count++) {
-      printf("count: %d ndx: %d\n", count, indexs[count]);
+      printf("count: %d ndx: %d\n", count, *indexs[count]);
    }*/
  
    //printf("total: %d\n", total);
-   return indexs;
+   return total;
 }
 
