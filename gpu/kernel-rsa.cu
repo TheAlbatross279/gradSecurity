@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #define BLOCK_SIZE 32
-#define GRID_SIZE 512
+#define GRID_SIZE 4096
 
 #include "cuda-rsa.h"
 
@@ -118,9 +118,9 @@ __global__ void doGCD(bigInt *keys, int toComp, int start,
       if (res) {
          if (threadIdx.x == 0) {
             printf("FOUND A KEY at: %d, %d\n", toComp, start + blockIdx.x);
-            atomicOr(vector + ((blockIdx.x + start) / 32), 1 << 
-             (blockIdx.x % 32));
-            atomicOr(vector + (toComp / 32), 1 << (toComp % 32));
+            atomicOr(&vector[(blockIdx.x + start) / 32], 1 << 
+             ((blockIdx.x + start) % 32));
+            atomicOr(&vector[toComp / 32], 1 << (toComp % 32));
          }
       }
    }
@@ -147,20 +147,7 @@ void setUpKernel(bigInt *arr, uint32_t *bitVector) {
    HANDLE_ERROR(cudaMalloc(&compD, sizeof(bigInt) * GRID_SIZE));
    HANDLE_ERROR(cudaMalloc(&comp2D, sizeof(bigInt) * GRID_SIZE));
    HANDLE_ERROR(cudaMemset(bitVectorD, 0, bitVecSize));
-   //TEST CODE
-   /*bigInt *xD, *yD;
-   int *resD;
-   int res;
-   HANDLE_ERROR(cudaMalloc(&xD, sizeof(bigInt)));
-   HANDLE_ERROR(cudaMalloc(&yD, sizeof(bigInt)));
-   HANDLE_ERROR(cudaMalloc(&resD, sizeof(int)));
-   HANDLE_ERROR(cudaMemcpy(xD, &arr[0], sizeof(bigInt), cudaMemcpyHostToDevice));
-   HANDLE_ERROR(cudaMemcpy(yD, &arr[1], sizeof(bigInt), cudaMemcpyHostToDevice));
-   gcd<<<dimGrid, dimBlock>>>(xD->values, yD->values, resD);
-   HANDLE_ERROR(cudaMemcpy(&res, resD, sizeof(int), cudaMemcpyDeviceToHost));
-   printf("result: %d\n",  res);
-   */
-   //END TEST
+   
    /*Copy keys onto device*/
    HANDLE_ERROR(cudaMemcpy(arrD, arr, keyArrSize, cudaMemcpyHostToDevice));
 
@@ -177,7 +164,7 @@ void setUpKernel(bigInt *arr, uint32_t *bitVector) {
    HANDLE_ERROR(cudaMemcpy(bitVector, bitVectorD, bitVecSize, 
     cudaMemcpyDeviceToHost));
    
-   uint32_t mask;
+   /*uint32_t mask;
    int total = 0;
    int inCount = 0;
 
@@ -186,11 +173,11 @@ void setUpKernel(bigInt *arr, uint32_t *bitVector) {
          mask = 1 << inCount;
          if (bitVector[count] & mask) {
             total++;
-            printf("key location: %d\n", (count * 32) + inCount + 1);
+            printf("key location: %d\n", (count * 32) + inCount);
          }
       }
    }
-   printf("total: %d\n", total);
-   exit(1);
+   printf("total: %d\n", total);*/
+   
 }
 
