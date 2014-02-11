@@ -1,0 +1,43 @@
+Reading in keys...
+done.
+Calling kernel...
+count: 0 ndx: 591
+count: 1 ndx: 667
+count: 2 ndx: 1236
+count: 3 ndx: 2333
+count: 4 ndx: 2457
+count: 5 ndx: 3102
+count: 6 ndx: 3496
+count: 7 ndx: 3956
+count: 8 ndx: 4171
+count: 9 ndx: 4398
+count: 10 ndx: 4656
+count: 11 ndx: 4682
+count: 12 ndx: 5875
+count: 13 ndx: 7039
+count: 14 ndx: 7540
+count: 15 ndx: 7932
+count: 16 ndx: 8566
+count: 17 ndx: 8861
+count: 18 ndx: 9102
+count: 19 ndx: 9356
+count: 20 ndx: 9712
+count: 21 ndx: 10118
+count: 22 ndx: 10253
+count: 23 ndx: 10834
+count: 24 ndx: 13020
+count: 25 ndx: 13790
+count: 26 ndx: 14164
+count: 27 ndx: 15926
+count: 28 ndx: 16029
+count: 29 ndx: 16190
+count: 30 ndx: 17214
+count: 31 ndx: 17756
+count: 32 ndx: 17986
+count: 33 ndx: 18390
+count: 34 ndx: 19126
+count: 35 ndx: 19899
+total: 36
+done.
+Outputting results...
+done.

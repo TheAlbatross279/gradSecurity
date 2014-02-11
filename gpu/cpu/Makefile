@@ -21,13 +21,13 @@ bigInt: bigInt.c
 	$(CC) $(FLAGS) $(CFLAGS) bigInt.c $(libL) 
 
 rsa_cpu: rsaCrack.o gmpFuncts.o rsa.o
-	$(CC) -o rsaCrack rsaCrack.o gmpFuncts.o rsa.o  $(CFLAGS) $(libL)
+	$(CC) $(INC) $(lib) -o rsaCrack rsaCrack.o gmpFuncts.o rsa.o  $(CFLAGS) $(libL)
 main: rsaCrack.c
-	$(CC) $(FLAGS) rsaCrack.c $(CFLAGS) $(libL)
-gmp_functs: gmpFucnts.o 
-	$(CC) $(FLAGS) gmpFuncts.c $(CFLAGS) $(libL)
+	$(CC) $(INC) $(lib) $(FLAGS) rsaCrack.c $(CFLAGS) $(libL)
+gmp_functs: gmpFucnts.c 
+	$(CC) $(INC) $(lib) $(FLAGS) gmpFuncts.c $(CFLAGS) $(libL)
 rsa: rsa.c
-	$(CC) $(FLAGS) rsa.c $(CFLAGS) $(libL)
+	$(CC) $(INC) $(lib) $(FLAGS) rsa.c $(CFLAGS) $(libL)
 
 
 clean:

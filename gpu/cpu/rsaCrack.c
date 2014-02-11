@@ -49,7 +49,7 @@ int main(int argc, char**argv) {
   mpz_init(q);
   time_t start = time(NULL);
   time_t end;
-  for (i=0; i < NUM_KEYS; i++) {
+  for (i=0; i < NUM_KEYS-1; i++) {
     for (j=i+1; j < NUM_KEYS; j++) {
       mpz_gcd (gcd, arr[i], arr[j]);
         if (mpz_cmp_ui(gcd, 1) > 0) {
@@ -65,6 +65,7 @@ int main(int argc, char**argv) {
            outputPrivateKey(arr[j], badkeys);
            fprintf(badkeys, ":");
            getPrivateKey(p, q, arr[j], publicKey, privateKey);
+           outputPrivateKey(privateKey, badkeys);
            fprintf(badkeys, "\n");
         } 
     }
