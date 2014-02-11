@@ -20,6 +20,29 @@ To run cpu:
    $> ./rsaCrack 
 
 
+Timing for GPU:
+
+Timing for CPU:
+ 20k: 
+   real	55m27.067s
+   user	55m25.292s
+   sys	0m0.128s
+
+ 4096:
+   real	2m25.483s
+   user	2m25.349s
+   sys	0m0.016s
+
+ 2048:
+   real	0m36.432s
+   user	0m36.402s
+   sys	0m0.004s
+
+ 256:
+   real	0m0.571s
+   user	0m0.568s
+   sys	0m0.000s
+
 Source Files:
 GPU: 
  cuda-rsa.cu
@@ -41,13 +64,12 @@ CPU:
 
 
 Output files:
+ 20k-gpu-badkeys.txt
+ 2048-gpu-badkeys.txt
+ 256-gpu-badkeys.txt
+ 4096-gpu-badkeys.txt
 
-20k-gpu-badkeys.txt
-2048-gpu-badkeys.txt
-256-gpu-badkeys.txt
-4096-gpu-badkeys.txt
-
-20k-cpu-badkeys.txt
-2048-cpu-badkeys.txt
-256-cpu-badkeys.txt
-4096-cpu-badkeys.txt
+ 20k-cpu-badkeys.txt
+ 2048-cpu-badkeys.txt
+ 256-cpu-badkeys.txt
+ 4096-cpu-badkeys.txt
