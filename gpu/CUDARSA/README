@@ -1,0 +1,53 @@
+Brady Thomas & Kim Paterson
+CSC 419/556
+Feb, 2014
+
+CUDA-RSA Cracking
+To run GPU: 
+   //change input and output files, and change the #define in cuda-rsa.h 
+   // for  20k: NUm_KEYS = 20000, INT_ARRAY_SIZE = 625
+   // for 4096: NUM_KEYS = 4096, INT_ARRAY_SIZE = 64
+   // for 2048: NUM_LEYS = 2048, INT_ARRAY_SIZE = 32
+   // for  256: NUM_KEYS = 256, INT_ARRAY_SIZE = 8
+
+  $> make
+  $> ./cudaRSA
+
+To run cpu: 
+   //change input and output files and change #define of num keys
+   
+   $> make rsa_cpu
+   $> ./rsaCrack 
+
+
+Source Files:
+GPU: 
+ cuda-rsa.cu
+ cuda-rsa.h
+ bigInt.cu
+ bigInt.h
+ kernel-rsa.cu
+ rsaio.cu
+ rsaio.h
+ Makefile
+
+CPU: 
+ rsa.c
+ rsa.h
+ rsaCrack.c
+ gmpFuncts.c
+ gmpFuncts.h
+ Makefile
+
+
+Output files:
+
+20k-gpu-badkeys.txt
+2048-gpu-badkeys.txt
+256-gpu-badkeys.txt
+4096-gpu-badkeys.txt
+
+20k-cpu-badkeys.txt
+2048-cpu-badkeys.txt
+256-cpu-badkeys.txt
+4096-cpu-badkeys.txt

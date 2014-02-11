@@ -1,0 +1,30 @@
+Brady Thomas & Kim Paterson
+CSC 419/556 Cuda-RSA 
+Feb, 2014
+
+CUDA-RSA Cracking
+
+Source Files:
+GPU: 
+ cuda-rsa.cu
+ cuda-rsa.h
+ bigInt.cu
+ bigInt.h
+ kernel-rsa.cu
+ rsaio.cu
+ rsaio.h
+ Makefile
+
+CPU: 
+ rsa.c
+ rsa.h
+ rsaCrack.c
+ gmpFuncts.c
+ gmpFuncts.h
+ Makefile
+
+
+Output files:
+
+20k-gpu-badkeys.txt
+20k-cpu-badkeys.txt
