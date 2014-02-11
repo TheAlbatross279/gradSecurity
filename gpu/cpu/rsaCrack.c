@@ -13,11 +13,11 @@
 #include <time.h>
 #endif
 
-#define NUM_KEYS 20000
+#define NUM_KEYS 4096
 
 int main(int argc, char**argv) {
   printf("Checking RSA keys...\n");
-  FILE *keys_file = fopen("../keys.txt", "r");
+  FILE *keys_file = fopen("../4096-keys.txt", "r");
 
   mpz_t rop;
   mpz_init(rop);
@@ -44,7 +44,7 @@ int main(int argc, char**argv) {
   mpz_set_ui(publicKey, E);
 
 
-  FILE *badkeys = fopen("20k-badKeys.txt", "w");
+  FILE *badkeys = fopen("4096-my-badKeys.txt", "w");
   mpz_init(p);
   mpz_init(q);
   time_t start = time(NULL);
