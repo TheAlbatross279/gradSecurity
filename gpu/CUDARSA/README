@@ -5,7 +5,7 @@ Feb, 2014
 CUDA-RSA Cracking
 To run GPU: 
    //change input and output files, and change the #define in cuda-rsa.h 
-   // for  20k: NUm_KEYS = 20000, INT_ARRAY_SIZE = 625
+   // for  20k: NUM_KEYS = 20000, INT_ARRAY_SIZE = 625
    // for 4096: NUM_KEYS = 4096, INT_ARRAY_SIZE = 64
    // for 2048: NUM_LEYS = 2048, INT_ARRAY_SIZE = 32
    // for  256: NUM_KEYS = 256, INT_ARRAY_SIZE = 8
@@ -21,6 +21,26 @@ To run cpu:
 
 
 Timing for GPU:
+ 20k: 
+   real  90m42.594s
+   user  33m47.146s
+   sys   56m54.186s
+
+ 4096:
+   real  3m41.663s
+   user  1m27.544s
+   sys   2m14.067s
+
+ 2048:
+   real  0m57.390s
+   user  0m26.533s
+   sys   0m30.842s
+
+ 256:
+   real  0m1.369s
+   user  0m0.981s
+   sys   0m0.371s
+   
 
 Timing for CPU:
  20k: 

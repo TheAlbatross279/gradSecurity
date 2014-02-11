@@ -20,8 +20,8 @@ int main(int argc, char **argv) {
   //read in keys
 
 //   printf("Keys:\n");
-   FILE *keys_file = fopen("keys.txt", "r");
-   FILE *out_file = fopen("20k-outfile.txt", "w");
+   FILE *keys_file = fopen("4096-keys.txt", "r");
+   FILE *out_file = fopen("out.txt", "w");
    
    //read file
    int i = 0;
